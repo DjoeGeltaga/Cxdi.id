@@ -28,7 +28,7 @@
 
     <div class="card">
       <h3>🔗 Link Komunitas & Sosmed</h3>
-      <form onsubmit="saveConfig(event, 'links')">
+      <form onsubmit="saveConfig(event, 'links'); return false;">
         <label>Link WhatsApp</label>
         <input type="url" id="waLink" required>
         <label>Link Discord</label>
@@ -39,7 +39,7 @@
 
     <div class="card">
       <h3>🏁 Event & Pendaftaran</h3>
-      <form onsubmit="saveConfig(event, 'event')">
+      <form onsubmit="saveConfig(event, 'event'); return false;">
         <label>URL Poster Foto Event</label>
         <input type="url" id="evImg" placeholder="Link gambar (Imgur/GitHub/dll)" required>
         <label>Nama Event</label>
@@ -60,7 +60,7 @@
 
     <div class="card">
       <h3>📅 Jadwal Pertandingan</h3>
-      <form onsubmit="saveConfig(event, 'schedule')">
+      <form onsubmit="saveConfig(event, 'schedule'); return false;">
         <textarea id="schedDesc" required></textarea>
         <button type="submit">Simpan Jadwal</button>
       </form>
@@ -68,7 +68,7 @@
 
     <div class="card">
       <h3>📜 Rules Grup</h3>
-      <form onsubmit="saveConfig(event, 'rules')">
+      <form onsubmit="saveConfig(event, 'rules'); return false;">
         <textarea id="groupRules" required></textarea>
         <button type="submit">Simpan Rules</button>
       </form>
@@ -76,7 +76,7 @@
 
     <div class="card">
       <h3>🤝 Sponsor</h3>
-      <form onsubmit="saveConfig(event, 'sponsors')">
+      <form onsubmit="saveConfig(event, 'sponsors'); return false;">
         <textarea id="sponsorList" required></textarea>
         <button type="submit">Simpan Sponsor</button>
       </form>
@@ -87,7 +87,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = 'https://vemwhklbeknxrdcwyirxe.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlbXdoa2xiZWtueGRjd3lpcnhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4MTY1MzEsImV4cCI6MjEwMzM5MjUzMX0.BnyX9No8YEYCNIvRR2RzsoaslOb8o2Ka4V_YHLboWYg';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlbXdoa2xiZWtueGRjd3lpcnhlIiwicm9sZSI6InFub24iLCJpYXQiOjE3ODc4MTY1MzEsImV4cCI6MjEwMzM5MjUzMX0.BnyX9No8YEYCNIvRR2RzsoaslOb8o2Ka4V_YHLboWYg';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     if (!localStorage.getItem('sb_access_token')) {
