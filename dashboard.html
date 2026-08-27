@@ -86,9 +86,8 @@
   <!-- Memuat library Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // MASUKKAN URL DAN ANON KEY SUPABASE ANDA DI SINI
-    const SUPABASE_URL = 'https://PROJECT_ID.supabase.co';
-    const SUPABASE_ANON_KEY = 'ANON_KEY_ANDA';
+    const SUPABASE_URL = 'https://vemwhklbeknxrdcwyirxe.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlbXdoa2xiZWtueGRjd3lpcnhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4MTY1MzEsImV4cCI6MjEwMzM5MjUzMX0.BnyX9No8YEYCNIvRR2RzsoaslOb8o2Ka4V_YHLboWYg';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     if (!localStorage.getItem('sb_access_token')) {
