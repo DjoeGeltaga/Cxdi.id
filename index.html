@@ -3,81 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CXDI — Carx Street Drift Indo</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>CXDI - CarX Street Drift Indo</title>
+  <style>
+    body { background-color: #0d0e12; color: white; font-family: sans-serif; margin: 0; padding: 0; text-align: center; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #16181f; border-bottom: 1px solid #2a2d37; }
+    .logo-area { display: flex; align-items: center; gap: 10px; }
+    .logo-badge { background: #e11d48; color: white; padding: 8px 12px; font-weight: bold; border-radius: 6px; }
+    .logo-text h1 { font-size: 16px; margin: 0; }
+    .logo-text p { font-size: 11px; margin: 0; color: #9ca3af; }
+    
+    .hero { padding: 40px 20px; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1000&q=80') center/cover; }
+    .hero h2 { font-size: 24px; margin-bottom: 10px; }
+    .hero p { color: #f43f5e; font-weight: bold; margin-bottom: 25px; }
+
+    .btn-group { display: flex; flex-direction: column; gap: 12px; max-width: 320px; margin: 0 auto; }
+    .btn { padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; color: white; display: block; font-size: 14px; }
+    .btn-wa { background: #22c55e; }
+    .btn-dc { background: #6366f1; }
+    .btn-event { background: #e11d48; }
+
+    .section { padding: 30px 20px; border-top: 1px solid #2a2d37; }
+    .section h3 { color: #e11d48; margin-bottom: 15px; }
+    
+    .event-card { background: #16181f; border: 1px solid #2a2d37; padding: 15px; border-radius: 8px; max-width: 350px; margin: 0 auto; text-align: left; }
+    .event-card h4 { margin: 0 0 8px 0; color: white; }
+    .event-card p { margin: 5px 0; font-size: 13px; color: #9ca3af; }
+
+    .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 400px; margin: 0 auto; }
+    .gallery-item { background: #16181f; border: 1px solid #2a2d37; height: 100px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6b7280; font-size: 12px; }
+  </style>
 </head>
 <body>
 
   <header>
-    <nav class="navbar">
-      <a href="#" class="logo-brand">
-        <span class="logo-badge">CXDI</span>
-        <div class="brand-text">
-          <h1>CARX STREET</h1>
-          <span>DRIFT INDO</span>
-        </div>
-      </a>
-      <button class="hamburger" id="menuToggle">☰</button>
-      <ul class="nav-links" id="navMenu">
-        <li><a href="#home">Home</a></li>
-        <li><a href="#event">Event</a></li>
-        <li><a href="#giveaway">Giveaway</a></li>
-        <li><a href="#gallery">Gallery</a></li>
-        <li><a href="#community">Community</a></li>
-        <li><a href="admin.html" class="btn btn-outline" style="padding: 4px 12px;">Admin Login</a></li>
-      </ul>
-    </nav>
-  </header>
-
-  <section id="home" class="hero">
-    <div class="hero-content">
-      <h2>CXDI — CARX STREET DRIFT INDO</h2>
-      <p>DRIFT • EVENT • COMMUNITY</p>
-      <div class="cta-buttons">
-        <a id="btnWaHero" href="#" target="_blank" class="btn btn-secondary">Join WhatsApp</a>
-        <a id="btnDiscordHero" href="#" target="_blank" class="btn btn-discord">Join Discord</a>
-        <a href="#event" class="btn btn-primary">Lihat Event</a>
+    <div class="logo-area">
+      <div class="logo-badge">CXDI</div>
+      <div class="logo-text" style="text-align: left;">
+        <h1>CARX STREET</h1>
+        <p>DRIFT INDO</p>
       </div>
     </div>
-  </section>
+    <a href="admin.html" style="color: #9ca3af; font-size: 12px; text-decoration: none;">Admin Login</a>
+  </header>
 
-  <div class="stats-container">
-    <div class="stat-card"><h3 id="statMembers">0</h3><p>Member</p></div>
-    <div class="stat-card"><h3 id="statEvents">0</h3><p>Total Event</p></div>
-    <div class="stat-card"><h3 id="statGiveaways">0</h3><p>Giveaway</p></div>
-    <div class="stat-card"><h3 id="statGallery">0</h3><p>Foto Galeri</p></div>
-  </div>
+  <div class="hero">
+    <h2>CXDI — CARX STREET DRIFT INDO</h2>
+    <p>DRIFT • EVENT • COMMUNITY</p>
 
-  <section id="event">
-    <h2 class="section-title">Jadwal <span>Event Drift</span></h2>
-    <div class="grid" id="eventsGrid"></div>
-  </section>
-
-  <section id="giveaway">
-    <h2 class="section-title">Community <span>Giveaway</span></h2>
-    <div class="grid" id="giveawayGrid"></div>
-  </section>
-
-  <section id="gallery">
-    <h2 class="section-title">CXDI <span>Gallery</span></h2>
-    <div class="grid" id="galleryGrid"></div>
-  </section>
-
-  <section id="community" style="text-align: center;">
-    <h2 class="section-title">Gabung <span>Komunitas</span></h2>
-    <p style="color: var(--text-muted); margin-bottom: 30px;">Mari bergabung dengan ratusan drifter CarX Street di seluruh Indonesia!</p>
-    <div class="cta-buttons">
-      <a id="btnWaFooter" href="#" target="_blank" class="btn btn-secondary" style="padding: 15px 30px; font-size: 1.1rem;">Gabung Grup WhatsApp CXDI</a>
-      <a id="btnDiscordFooter" href="#" target="_blank" class="btn btn-discord" style="padding: 15px 30px; font-size: 1.1rem;">Gabung Server Discord CXDI</a>
+    <div class="btn-group">
+      <a id="linkWa" href="#" target="_blank" class="btn btn-wa">Join WhatsApp</a>
+      <a id="linkDc" href="#" target="_blank" class="btn btn-dc">Join Discord</a>
+      <a href="#eventSection" class="btn btn-event">Lihat Event</a>
     </div>
-  </section>
-
-  <div class="modal" id="imageModal">
-    <img id="modalImg" src="" alt="Preview">
   </div>
 
-  <script src="config.js"></script>
-  <script src="app.js"></script>
+  <!-- BAGIAN EVENT -->
+  <div id="eventSection" class="section">
+    <h3>JADWAL EVENT DRIFT</h3>
+    <div id="eventContainer">
+      <div class="event-card">
+        <h4 id="evName">Belum ada event aktif</h4>
+        <p><b>Tanggal:</b> <span id="evDate">-</span></p>
+        <p><b>Hadiah:</b> <span id="evPrize">-</span></p>
+        <p id="evDesc" style="margin-top: 10px; font-size: 12px;">Admin belum mempublikasikan event baru.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAGIAN GALLERY -->
+  <div class="section">
+    <h3>CXDI GALLERY</h3>
+    <div class="gallery-grid">
+      <div class="gallery-item">Foto Banner 1</div>
+      <div class="gallery-item">Foto Banner 2</div>
+    </div>
+  </div>
+
+  <script>
+    // Otomatis pasang link WhatsApp & Discord dari data yang disimpan admin
+    const savedWa = localStorage.getItem('cfg_wa');
+    const savedDc = localStorage.getItem('cfg_discord');
+
+    if (savedWa) document.getElementById('linkWa').href = savedWa;
+    if (savedDc) document.getElementById('linkDc').href = savedDc;
+
+    // Otomatis tampilkan event terbaru dari dashboard
+    const savedEvent = localStorage.getItem('active_event');
+    if (savedEvent) {
+      const ev = JSON.parse(savedEvent);
+      document.getElementById('evName').innerText = ev.name;
+      document.getElementById('evDate').innerText = ev.date;
+      document.getElementById('evPrize').innerText = ev.prize;
+      document.getElementById('evDesc').innerText = ev.desc;
+    }
+  </script>
 </body>
 </html>
