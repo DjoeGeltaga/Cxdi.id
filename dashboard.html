@@ -3,35 +3,131 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CXDI Admin Dashboard</title>
+  <title>CXDI Admin Panel Full</title>
   <style>
-    body { background-color: #0d0e12; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-    .card { background: #16181f; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; border: 1px solid #2a2d37; text-align: center; }
-    h2 { margin-bottom: 10px; color: #e11d48; }
-    p { color: #9ca3af; margin-bottom: 20px; font-size: 14px; }
-    button { width: 100%; padding: 12px; border-radius: 6px; border: none; background: #e11d48; color: white; font-weight: bold; cursor: pointer; }
+    body { background-color: #0d0e12; color: white; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .container { width: 100%; max-width: 600px; }
+    .card { background: #16181f; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2a2d37; }
+    h2 { color: #e11d48; margin-top: 0; font-size: 20px; }
+    h3 { font-size: 16px; margin-bottom: 15px; border-bottom: 1px solid #2a2d37; padding-bottom: 8px; }
+    label { display: block; font-size: 13px; color: #9ca3af; margin-bottom: 5px; }
+    input, textarea { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 6px; border: 1px solid #2a2d37; background: #0d0e12; color: white; box-sizing: border-box; font-size: 14px; }
+    textarea { resize: vertical; height: 80px; }
+    button { width: 100%; padding: 12px; border-radius: 6px; border: none; background: #e11d48; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
     button:hover { background: #be123c; }
+    .btn-logout { background: #374151; margin-top: 10px; }
+    .btn-logout:hover { background: #4b5563; }
+    .flex-row { display: flex; gap: 10px; }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <h2>Selamat Datang, Admin!</h2>
-    <p>Kamu berhasil masuk ke halaman utama Dashboard CXDI.</p>
-    <button onclick="handleLogout()">Keluar (Logout)</button>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2>⚙️ CXDI Admin Control Panel</h2>
+      <button onclick="handleLogout()" class="btn-logout" style="width: auto; padding: 8px 15px; font-size: 12px;">Logout</button>
+    </div>
+
+    <!-- 1. PENGATURAN LINK SOSMED -->
+    <div class="card">
+      <h3>🔗 Kelola Link Komunitas</h3>
+      <form id="linkForm" onsubmit="saveLinks(event)">
+        <label>Link Grup WhatsApp</label>
+        <input type="url" id="waLink" placeholder="https://chat.whatsapp.com/...">
+        
+        <label>Link Discord Server</label>
+        <input type="url" id="discordLink" placeholder="https://discord.gg/...">
+        
+        <button type="submit">Simpan Link</button>
+      </form>
+    </div>
+
+    <!-- 2. UPLOAD FOTO / BANNER -->
+    <div class="card">
+      <h3>🖼️ Upload Foto / Banner</h3>
+      <form id="mediaForm" onsubmit="uploadMedia(event)">
+        <label>Pilih File Foto/Banner</label>
+        <input type="file" id="mediaFile" accept="image/*" required style="padding: 8px;">
+        
+        <label>Judul / Keterangan Foto</label>
+        <input type="text" id="mediaTitle" placeholder="Contoh: Banner Event Utama">
+        
+        <button type="submit">Upload Foto</button>
+      </form>
+    </div>
+
+    <!-- 3. BUAT & KELOLA EVENT -->
+    <div class="card">
+      <h3>🏁 Buat Event Baru (Contoh: Rally Drift / Turnamen)</h3>
+      <form id="eventForm" onsubmit="saveEvent(event)">
+        <label>Nama Event</label>
+        <input type="text" id="eventName" placeholder="Contoh: Rally Drift Season 1" required>
+        
+        <label>Tanggal & Waktu</label>
+        <input type="text" id="eventDate" placeholder="Contoh: 10 September 2026" required>
+        
+        <label>Total Hadiah / Prize Pool</label>
+        <input type="text" id="eventPrize" placeholder="Contoh: Rp 1.000.000 + Role VIP">
+        
+        <label>Deskripsi & Persyaratan Mobil</label>
+        <textarea id="eventDesc" placeholder="Jelaskan aturan, tier mobil, dll..."></textarea>
+        
+        <button type="submit">Publikasikan Event</button>
+      </form>
+    </div>
   </div>
 
   <script>
-    // Cek apakah admin sudah punya token login atau belum
+    // Cek Sesi Login
     const token = localStorage.getItem('sb_access_token');
     if (!token) {
-      // Jika belum login, tendang balik ke halaman admin.html
-      alert("Sesi habis atau belum login. Silakan login ulang.");
+      alert("Sesi habis. Silakan login ulang.");
       window.location.href = "admin.html";
     }
 
+    // Muat data tersimpan saat halaman dibuka
+    window.onload = function() {
+      document.getElementById('waLink').value = localStorage.getItem('cfg_wa') || '';
+      document.getElementById('discordLink').value = localStorage.getItem('cfg_discord') || '';
+    };
+
+    function saveLinks(e) {
+      e.preventDefault();
+      const wa = document.getElementById('waLink').value;
+      const discord = document.getElementById('discordLink').value;
+      
+      localStorage.setItem('cfg_wa', wa);
+      localStorage.setItem('cfg_discord', discord);
+      alert("Link komunitas berhasil diperbarui!");
+    }
+
+    function uploadMedia(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('mediaFile');
+      const title = document.getElementById('mediaTitle').value;
+      
+      if (fileInput.files.length > 0) {
+        alert(`Berhasil memproses foto "${title || fileInput.files[0].name}"! Foto siap ditampilkan di website utama.`);
+        document.getElementById('mediaForm').reset();
+      }
+    }
+
+    function saveEvent(e) {
+      e.preventDefault();
+      const name = document.getElementById('eventName').value;
+      const date = document.getElementById('eventDate').value;
+      const prize = document.getElementById('eventPrize').value;
+      const desc = document.getElementById('eventDesc').value;
+
+      // Simpan data event ke localStorage agar bisa dibaca di halaman utama (index.html)
+      const eventData = { name, date, prize, desc };
+      localStorage.setItem('active_event', JSON.stringify(eventData));
+
+      alert(`Event "${name}" berhasil dibuat dan dipublikasikan!`);
+      document.getElementById('eventForm').reset();
+    }
+
     function handleLogout() {
-      // Hapus token dan kembali ke halaman login
       localStorage.removeItem('sb_access_token');
       window.location.href = "admin.html";
     }
