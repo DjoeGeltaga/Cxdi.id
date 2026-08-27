@@ -129,9 +129,10 @@
       e.preventDefault();
       
       if (type === 'links') {
-        await supabase.from('site_config').upsert({ key: 'wa', value: document.getElementById('waLink').value });
-        await supabase.from('site_config').upsert({ key: 'discord', value: document.getElementById('discordLink').value });
+        await supabase.from('site_config').upsert({ key: 'wa', value: document.getElementById('waLink').value }, { onConflict: 'key' });
+        await supabase.from('site_config').upsert({ key: 'discord', value: document.getElementById('discordLink').value }, { onConflict: 'key' });
         alert("Link berhasil disimpan secara online!");
+        loadData();
         return;
       } 
       
@@ -157,11 +158,12 @@
         value = document.getElementById('sponsorList').value;
       }
 
-      const { error } = await supabase.from('site_config').upsert({ key: key, value: value });
+      const { error } = await supabase.from('site_config').upsert({ key: key, value: value }, { onConflict: 'key' });
       if (error) {
         alert("Gagal menyimpan ke database: " + error.message);
       } else {
         alert("Data berhasil dipublikasikan secara global ke semua HP!");
+        loadData();
       }
     }
 
