@@ -98,9 +98,9 @@
   <!-- Memuat library Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // MASUKKAN KREDENSIAL SUPABASE ANDA DI SINI
-    const SUPABASE_URL = 'GANTI_DENGAN_URL_SUPABASE_ANDA';
-    const SUPABASE_ANON_KEY = 'GANTI_DENGAN_ANON_KEY_SUPABASE_ANDA';
+    // MASUKKAN URL DAN ANON KEY SUPABASE ANDA DI SINI
+    const SUPABASE_URL = 'https://PROJECT_ID.supabase.co';
+    const SUPABASE_ANON_KEY = 'ANON_KEY_ANDA';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function fetchPublicData() {
@@ -113,22 +113,26 @@
           if (row.key === 'rules') document.getElementById('rulesView').innerText = row.value;
           if (row.key === 'sponsors') document.getElementById('sponsorView').innerText = row.value;
           if (row.key === 'event') {
-            const ev = JSON.parse(row.value);
-            document.getElementById('evName').innerText = ev.name || '-';
-            document.getElementById('evDate').innerText = ev.date || '-';
-            document.getElementById('evClass').innerText = ev.cls || '-';
-            document.getElementById('evPrize').innerText = ev.prize || '-';
-            document.getElementById('evRules').innerText = ev.rules || '-';
-            if (ev.reg) {
-              document.getElementById('evRegBtn').href = ev.reg;
-              document.getElementById('evRegBtn').style.display = 'inline-block';
-            } else {
-              document.getElementById('evRegBtn').style.display = 'none';
-            }
-            if (ev.img) {
-              const imgEl = document.getElementById('evImg');
-              imgEl.src = ev.img;
-              imgEl.style.display = 'block';
+            try {
+              const ev = JSON.parse(row.value);
+              document.getElementById('evName').innerText = ev.name || '-';
+              document.getElementById('evDate').innerText = ev.date || '-';
+              document.getElementById('evClass').innerText = ev.cls || '-';
+              document.getElementById('evPrize').innerText = ev.prize || '-';
+              document.getElementById('evRules').innerText = ev.rules || '-';
+              if (ev.reg) {
+                document.getElementById('evRegBtn').href = ev.reg;
+                document.getElementById('evRegBtn').style.display = 'inline-block';
+              } else {
+                document.getElementById('evRegBtn').style.display = 'none';
+              }
+              if (ev.img) {
+                const imgEl = document.getElementById('evImg');
+                imgEl.src = ev.img;
+                imgEl.style.display = 'block';
+              }
+            } catch (err) {
+              console.error("Gagal parsing data event");
             }
           }
         });
