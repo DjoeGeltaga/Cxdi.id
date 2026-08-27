@@ -86,9 +86,9 @@
   <!-- Memuat library Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // MASUKKAN KREDENSIAL SUPABASE ANDA DI SINI
-    const SUPABASE_URL = 'GANTI_DENGAN_URL_SUPABASE_ANDA';
-    const SUPABASE_ANON_KEY = 'GANTI_DENGAN_ANON_KEY_SUPABASE_ANDA';
+    // MASUKKAN URL DAN ANON KEY SUPABASE ANDA DI SINI
+    const SUPABASE_URL = 'https://PROJECT_ID.supabase.co';
+    const SUPABASE_ANON_KEY = 'ANON_KEY_ANDA';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     if (!localStorage.getItem('sb_access_token')) {
@@ -106,14 +106,18 @@
           if (row.key === 'rules') document.getElementById('groupRules').value = row.value;
           if (row.key === 'sponsors') document.getElementById('sponsorList').value = row.value;
           if (row.key === 'event') {
-            const ev = JSON.parse(row.value);
-            document.getElementById('evImg').value = ev.img || '';
-            document.getElementById('evName').value = ev.name || '';
-            document.getElementById('evDate').value = ev.date || '';
-            document.getElementById('evClass').value = ev.cls || '';
-            document.getElementById('evPrize').value = ev.prize || '';
-            document.getElementById('evRules').value = ev.rules || '';
-            document.getElementById('evReg').value = ev.reg || '';
+            try {
+              const ev = JSON.parse(row.value);
+              document.getElementById('evImg').value = ev.img || '';
+              document.getElementById('evName').value = ev.name || '';
+              document.getElementById('evDate').value = ev.date || '';
+              document.getElementById('evClass').value = ev.cls || '';
+              document.getElementById('evPrize').value = ev.prize || '';
+              document.getElementById('evRules').value = ev.rules || '';
+              document.getElementById('evReg').value = ev.reg || '';
+            } catch (err) {
+              console.error("Format JSON event salah");
+            }
           }
         });
       }
@@ -123,15 +127,18 @@
 
     async function saveConfig(e, type) {
       e.preventDefault();
-      let key = type;
-      let value = '';
-
+      
       if (type === 'links') {
         await supabase.from('site_config').upsert({ key: 'wa', value: document.getElementById('waLink').value });
         await supabase.from('site_config').upsert({ key: 'discord', value: document.getElementById('discordLink').value });
         alert("Link berhasil disimpan secara online!");
         return;
-      } else if (type === 'event') {
+      } 
+      
+      let key = type;
+      let value = '';
+
+      if (type === 'event') {
         const evData = {
           img: document.getElementById('evImg').value,
           name: document.getElementById('evName').value,
