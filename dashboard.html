@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CXDI Admin Panel Full</title>
+  <title>CXDI Admin Control Panel Full</title>
   <style>
     body { background-color: #0d0e12; color: white; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
     .container { width: 100%; max-width: 600px; }
@@ -17,114 +17,197 @@
     button:hover { background: #be123c; }
     .btn-logout { background: #374151; margin-top: 10px; }
     .btn-logout:hover { background: #4b5563; }
-    .flex-row { display: flex; gap: 10px; }
   </style>
 </head>
 <body>
 
   <div class="container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h2>⚙️ CXDI Admin Control Panel</h2>
+      <h2>⚙️ CXDI Admin Master Panel</h2>
       <button onclick="handleLogout()" class="btn-logout" style="width: auto; padding: 8px 15px; font-size: 12px;">Logout</button>
     </div>
 
-    <!-- 1. PENGATURAN LINK SOSMED -->
+    <!-- 1. LINK SOSMED -->
     <div class="card">
-      <h3>🔗 Kelola Link Komunitas</h3>
-      <form id="linkForm" onsubmit="saveLinks(event)">
+      <h3>🔗 Kelola Link Komunitas (WA & Discord)</h3>
+      <form onsubmit="saveLinks(event)">
         <label>Link Grup WhatsApp</label>
-        <input type="url" id="waLink" placeholder="https://chat.whatsapp.com/...">
-        
+        <input type="url" id="waLink" placeholder="https://chat.whatsapp.com/..." required>
         <label>Link Discord Server</label>
-        <input type="url" id="discordLink" placeholder="https://discord.gg/...">
-        
-        <button type="submit">Simpan Link</button>
+        <input type="url" id="discordLink" placeholder="https://discord.gg/..." required>
+        <button type="submit">Simpan Link Sosmed</button>
       </form>
     </div>
 
-    <!-- 2. UPLOAD FOTO / BANNER -->
+    <!-- 2. DETAIL EVENT + FOTO -->
     <div class="card">
-      <h3>🖼️ Upload Foto / Banner</h3>
-      <form id="mediaForm" onsubmit="uploadMedia(event)">
-        <label>Pilih File Foto/Banner</label>
-        <input type="file" id="mediaFile" accept="image/*" required style="padding: 8px;">
+      <h3>🏁 Kelola Event, Poster & Pendaftaran</h3>
+      <form onsubmit="saveEvent(event)">
+        <label>Banner / Poster Foto Event</label>
+        <input type="file" id="evFile" accept="image/*" style="padding: 8px; margin-bottom: 12px;">
         
-        <label>Judul / Keterangan Foto</label>
-        <input type="text" id="mediaTitle" placeholder="Contoh: Banner Event Utama">
-        
-        <button type="submit">Upload Foto</button>
-      </form>
-    </div>
-
-    <!-- 3. BUAT & KELOLA EVENT -->
-    <div class="card">
-      <h3>🏁 Buat Event Baru (Contoh: Rally Drift / Turnamen)</h3>
-      <form id="eventForm" onsubmit="saveEvent(event)">
         <label>Nama Event</label>
-        <input type="text" id="eventName" placeholder="Contoh: Rally Drift Season 1" required>
+        <input type="text" id="evName" placeholder="Contoh: CXDI Drift Championship S1" required>
         
         <label>Tanggal & Waktu</label>
-        <input type="text" id="eventDate" placeholder="Contoh: 10 September 2026" required>
+        <input type="text" id="evDate" placeholder="Contoh: 15 September 2026, 19:00 WIB" required>
         
-        <label>Total Hadiah / Prize Pool</label>
-        <input type="text" id="eventPrize" placeholder="Contoh: Rp 1.000.000 + Role VIP">
+        <label>Class / Kategori Mobil</label>
+        <input type="text" id="evClass" placeholder="Contoh: Tier 3 & Tier 4 (Custom Engine)" required>
         
-        <label>Deskripsi & Persyaratan Mobil</label>
-        <textarea id="eventDesc" placeholder="Jelaskan aturan, tier mobil, dll..."></textarea>
+        <label>Total Hadiah (Prize Pool)</label>
+        <input type="text" id="evPrize" placeholder="Contoh: Rp 1.500.000 + Exclusive Role" required>
         
-        <button type="submit">Publikasikan Event</button>
+        <label>Rules / Peraturan Event</label>
+        <textarea id="evRules" placeholder="1. No cutting track&#10;2. Menggunakan ban semi-slick..." required></textarea>
+        
+        <label>Link Pendaftaran</label>
+        <input type="url" id="evReg" placeholder="https://forms.gle/..." required>
+        
+        <button type="submit">Simpan & Publikasikan Event</button>
+      </form>
+    </div>
+
+    <!-- 3. JADWAL PERTANDINGAN -->
+    <div class="card">
+      <h3>📅 Jadwal Pertandingan</h3>
+      <form onsubmit="saveSchedule(event)">
+        <label>Rincian Jadwal & Babak</label>
+        <textarea id="schedDesc" placeholder="Contoh:&#10;- 19:00 WIB: Briefing Peserta&#10;- 19:30 WIB: Kualifikasi Group A&#10;- 21:00 WIB: Babak 16 Besar" required></textarea>
+        <button type="submit">Simpan Jadwal</button>
+      </form>
+    </div>
+
+    <!-- 4. UPLOAD GALERI FOTO -->
+    <div class="card">
+      <h3>🖼️ Upload Foto Galeri</h3>
+      <form onsubmit="saveGallery(event)">
+        <label>Pilih File Foto</label>
+        <input type="file" id="galFile" accept="image/*" required style="padding: 8px;">
+        <label>Keterangan Foto</label>
+        <input type="text" id="galTitle" placeholder="Contoh: Gathering Tasikmalaya" required>
+        <button type="submit">Tambah ke Galeri</button>
+      </form>
+    </div>
+
+    <!-- 5. RULES GRUP -->
+    <div class="card">
+      <h3>📜 Rules / Peraturan Grup</h3>
+      <form onsubmit="saveRules(event)">
+        <label>Daftar Peraturan Komunitas</label>
+        <textarea id="groupRules" placeholder="1. Saling menghargai sesama member&#10;2. Dilarang spam link lain..." required></textarea>
+        <button type="submit">Simpan Rules Grup</button>
+      </form>
+    </div>
+
+    <!-- 6. SPONSOR -->
+    <div class="card">
+      <h3>🤝 Sponsor & Partner</h3>
+      <form onsubmit="saveSponsor(event)">
+        <label>Daftar Sponsor / Partner</label>
+        <textarea id="sponsorList" placeholder="Contoh:&#10;- PT Fakta Jabbar Industri&#10;- Koperasi Nusantara Maju" required></textarea>
+        <button type="submit">Simpan Sponsor</button>
       </form>
     </div>
   </div>
 
   <script>
-    // Cek Sesi Login
-    const token = localStorage.getItem('sb_access_token');
-    if (!token) {
+    if (!localStorage.getItem('sb_access_token')) {
       alert("Sesi habis. Silakan login ulang.");
       window.location.href = "admin.html";
     }
 
-    // Muat data tersimpan saat halaman dibuka
     window.onload = function() {
       document.getElementById('waLink').value = localStorage.getItem('cfg_wa') || '';
       document.getElementById('discordLink').value = localStorage.getItem('cfg_discord') || '';
+      
+      const ev = JSON.parse(localStorage.getItem('active_event') || '{}');
+      if(ev.name) {
+        document.getElementById('evName').value = ev.name || '';
+        document.getElementById('evDate').value = ev.date || '';
+        document.getElementById('evClass').value = ev.cls || '';
+        document.getElementById('evPrize').value = ev.prize || '';
+        document.getElementById('evRules').value = ev.rules || '';
+        document.getElementById('evReg').value = ev.reg || '';
+      }
+
+      document.getElementById('schedDesc').value = localStorage.getItem('cfg_schedule') || '';
+      document.getElementById('groupRules').value = localStorage.getItem('cfg_rules') || '';
+      document.getElementById('sponsorList').value = localStorage.getItem('cfg_sponsors') || '';
     };
 
     function saveLinks(e) {
       e.preventDefault();
-      const wa = document.getElementById('waLink').value;
-      const discord = document.getElementById('discordLink').value;
-      
-      localStorage.setItem('cfg_wa', wa);
-      localStorage.setItem('cfg_discord', discord);
-      alert("Link komunitas berhasil diperbarui!");
-    }
-
-    function uploadMedia(e) {
-      e.preventDefault();
-      const fileInput = document.getElementById('mediaFile');
-      const title = document.getElementById('mediaTitle').value;
-      
-      if (fileInput.files.length > 0) {
-        alert(`Berhasil memproses foto "${title || fileInput.files[0].name}"! Foto siap ditampilkan di website utama.`);
-        document.getElementById('mediaForm').reset();
-      }
+      localStorage.setItem('cfg_wa', document.getElementById('waLink').value);
+      localStorage.setItem('cfg_discord', document.getElementById('discordLink').value);
+      alert("Link komunitas berhasil disimpan!");
     }
 
     function saveEvent(e) {
       e.preventDefault();
-      const name = document.getElementById('eventName').value;
-      const date = document.getElementById('eventDate').value;
-      const prize = document.getElementById('eventPrize').value;
-      const desc = document.getElementById('eventDesc').value;
+      const fileInput = document.getElementById('evFile');
+      
+      const processSave = (imgBase64) => {
+        const existingEvent = JSON.parse(localStorage.getItem('active_event') || '{}');
+        const eventData = {
+          name: document.getElementById('evName').value,
+          date: document.getElementById('evDate').value,
+          cls: document.getElementById('evClass').value,
+          prize: document.getElementById('evPrize').value,
+          rules: document.getElementById('evRules').value,
+          reg: document.getElementById('evReg').value,
+          img: imgBase64 || existingEvent.img || ''
+        };
+        localStorage.setItem('active_event', JSON.stringify(eventData));
+        alert("Event dan poster berhasil dipublikasikan!");
+      };
 
-      // Simpan data event ke localStorage agar bisa dibaca di halaman utama (index.html)
-      const eventData = { name, date, prize, desc };
-      localStorage.setItem('active_event', JSON.stringify(eventData));
+      if (fileInput.files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          processSave(event.target.result);
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        processSave(null);
+      }
+    }
 
-      alert(`Event "${name}" berhasil dibuat dan dipublikasikan!`);
-      document.getElementById('eventForm').reset();
+    function saveSchedule(e) {
+      e.preventDefault();
+      localStorage.setItem('cfg_schedule', document.getElementById('schedDesc').value);
+      alert("Jadwal pertandingan berhasil disimpan!");
+    }
+
+    function saveGallery(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('galFile');
+      const title = document.getElementById('galTitle').value;
+      
+      if (fileInput.files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          let gallery = JSON.parse(localStorage.getItem('cfg_gallery') || '[]');
+          gallery.push({ title: title, img: event.target.result });
+          localStorage.setItem('cfg_gallery', JSON.stringify(gallery));
+          alert("Foto berhasil ditambahkan ke galeri!");
+          document.getElementById('galFile').value = '';
+          document.getElementById('galTitle').value = '';
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      }
+    }
+
+    function saveRules(e) {
+      e.preventDefault();
+      localStorage.setItem('cfg_rules', document.getElementById('groupRules').value);
+      alert("Peraturan grup berhasil disimpan!");
+    }
+
+    function saveSponsor(e) {
+      e.preventDefault();
+      localStorage.setItem('cfg_sponsors', document.getElementById('sponsorList').value);
+      alert("Daftar sponsor berhasil disimpan!");
     }
 
     function handleLogout() {
