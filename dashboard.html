@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CXDI Admin Control Panel Full</title>
+  <title>CXDI Admin Control Panel</title>
   <style>
     body { background-color: #0d0e12; color: white; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
     .container { width: 100%; max-width: 600px; }
@@ -15,8 +15,7 @@
     textarea { resize: vertical; height: 80px; }
     button { width: 100%; padding: 12px; border-radius: 6px; border: none; background: #e11d48; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
     button:hover { background: #be123c; }
-    .btn-logout { background: #374151; margin-top: 10px; }
-    .btn-logout:hover { background: #4b5563; }
+    .btn-logout { background: #374151; margin-top: 10px; width: auto; padding: 8px 15px; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -24,7 +23,7 @@
   <div class="container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h2>⚙️ CXDI Admin Master Panel</h2>
-      <button onclick="handleLogout()" class="btn-logout" style="width: auto; padding: 8px 15px; font-size: 12px;">Logout</button>
+      <button onclick="handleLogout()" class="btn-logout">Logout</button>
     </div>
 
     <!-- 1. LINK SOSMED -->
@@ -43,27 +42,20 @@
     <div class="card">
       <h3>🏁 Kelola Event, Poster & Pendaftaran</h3>
       <form onsubmit="saveEvent(event)">
-        <label>Banner / Poster Foto Event</label>
+        <label>Banner / Poster Foto Event (Akan dikompres otomatis)</label>
         <input type="file" id="evFile" accept="image/*" style="padding: 8px; margin-bottom: 12px;">
-        
         <label>Nama Event</label>
         <input type="text" id="evName" placeholder="Contoh: CXDI Drift Championship S1" required>
-        
         <label>Tanggal & Waktu</label>
         <input type="text" id="evDate" placeholder="Contoh: 15 September 2026, 19:00 WIB" required>
-        
         <label>Class / Kategori Mobil</label>
-        <input type="text" id="evClass" placeholder="Contoh: Tier 3 & Tier 4 (Custom Engine)" required>
-        
+        <input type="text" id="evClass" placeholder="Contoh: Tier 3 & Tier 4" required>
         <label>Total Hadiah (Prize Pool)</label>
-        <input type="text" id="evPrize" placeholder="Contoh: Rp 1.500.000 + Exclusive Role" required>
-        
+        <input type="text" id="evPrize" placeholder="Contoh: Rp 1.500.000" required>
         <label>Rules / Peraturan Event</label>
-        <textarea id="evRules" placeholder="1. No cutting track&#10;2. Menggunakan ban semi-slick..." required></textarea>
-        
+        <textarea id="evRules" placeholder="1. No cutting track..." required></textarea>
         <label>Link Pendaftaran</label>
         <input type="url" id="evReg" placeholder="https://forms.gle/..." required>
-        
         <button type="submit">Simpan & Publikasikan Event</button>
       </form>
     </div>
@@ -73,7 +65,7 @@
       <h3>📅 Jadwal Pertandingan</h3>
       <form onsubmit="saveSchedule(event)">
         <label>Rincian Jadwal & Babak</label>
-        <textarea id="schedDesc" placeholder="Contoh:&#10;- 19:00 WIB: Briefing Peserta&#10;- 19:30 WIB: Kualifikasi Group A&#10;- 21:00 WIB: Babak 16 Besar" required></textarea>
+        <textarea id="schedDesc" placeholder="- 19:00 WIB: Briefing Peserta&#10;- 19:30 WIB: Kualifikasi" required></textarea>
         <button type="submit">Simpan Jadwal</button>
       </form>
     </div>
@@ -95,7 +87,7 @@
       <h3>📜 Rules / Peraturan Grup</h3>
       <form onsubmit="saveRules(event)">
         <label>Daftar Peraturan Komunitas</label>
-        <textarea id="groupRules" placeholder="1. Saling menghargai sesama member&#10;2. Dilarang spam link lain..." required></textarea>
+        <textarea id="groupRules" placeholder="1. Saling menghargai..." required></textarea>
         <button type="submit">Simpan Rules Grup</button>
       </form>
     </div>
@@ -105,7 +97,7 @@
       <h3>🤝 Sponsor & Partner</h3>
       <form onsubmit="saveSponsor(event)">
         <label>Daftar Sponsor / Partner</label>
-        <textarea id="sponsorList" placeholder="Contoh:&#10;- PT Fakta Jabbar Industri&#10;- Koperasi Nusantara Maju" required></textarea>
+        <textarea id="sponsorList" placeholder="PT Fakta Jabbar Industri" required></textarea>
         <button type="submit">Simpan Sponsor</button>
       </form>
     </div>
@@ -136,6 +128,32 @@
       document.getElementById('sponsorList').value = localStorage.getItem('cfg_sponsors') || '';
     };
 
+    // Fungsi Kompresi Foto agar aman dari batas memori browser (5MB)
+    function compressImage(file, callback) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const max_size = 800; // Maksimal lebar/tinggi 800px
+          if (width > height) {
+            if (width > max_size) { height *= max_size / width; width = max_size; }
+          } else {
+            if (height > max_size) { width *= max_size / height; height = max_size; }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          callback(canvas.toDataURL('image/jpeg', 0.7)); // Kompres kualitas 70%
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
     function saveLinks(e) {
       e.preventDefault();
       localStorage.setItem('cfg_wa', document.getElementById('waLink').value);
@@ -156,20 +174,23 @@
           prize: document.getElementById('evPrize').value,
           rules: document.getElementById('evRules').value,
           reg: document.getElementById('evReg').value,
-          img: imgBase64 || existingEvent.img || ''
+          img: imgBase64 !== undefined ? imgBase64 : (existingEvent.img || '')
         };
-        localStorage.setItem('active_event', JSON.stringify(eventData));
-        alert("Event dan poster berhasil dipublikasikan!");
+        try {
+          localStorage.setItem('active_event', JSON.stringify(eventData));
+          alert("Event dan poster berhasil dipublikasikan!");
+          location.reload();
+        } catch (err) {
+          alert("Gagal menyimpan! Memori penyimpanan browser penuh.");
+        }
       };
 
       if (fileInput.files.length > 0) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          processSave(event.target.result);
-        };
-        reader.readAsDataURL(fileInput.files[0]);
+        compressImage(fileInput.files[0], function(compressedBase64) {
+          processSave(compressedBase64);
+        });
       } else {
-        processSave(null);
+        processSave(undefined);
       }
     }
 
@@ -185,16 +206,17 @@
       const title = document.getElementById('galTitle').value;
       
       if (fileInput.files.length > 0) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          let gallery = JSON.parse(localStorage.getItem('cfg_gallery') || '[]');
-          gallery.push({ title: title, img: event.target.result });
-          localStorage.setItem('cfg_gallery', JSON.stringify(gallery));
-          alert("Foto berhasil ditambahkan ke galeri!");
-          document.getElementById('galFile').value = '';
-          document.getElementById('galTitle').value = '';
-        };
-        reader.readAsDataURL(fileInput.files[0]);
+        compressImage(fileInput.files[0], function(compressedBase64) {
+          try {
+            let gallery = JSON.parse(localStorage.getItem('cfg_gallery') || '[]');
+            gallery.push({ title: title, img: compressedBase64 });
+            localStorage.setItem('cfg_gallery', JSON.stringify(gallery));
+            alert("Foto berhasil ditambahkan ke galeri!");
+            location.reload();
+          } catch (err) {
+            alert("Gagal menyimpan ke galeri! Memori penuh.");
+          }
+        });
       }
     }
 
