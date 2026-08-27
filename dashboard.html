@@ -23,7 +23,7 @@
   <div class="container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h2>☁️ CXDI Cloud Admin Panel</h2>
-      <button onclick="handleLogout()" class="btn-logout">Logout & ke Beranda</button>
+      <button type="button" onclick="handleLogout()" class="btn-logout">Logout & ke Beranda</button>
     </div>
 
     <div class="card">
@@ -86,45 +86,65 @@
   <!-- Memuat library Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const SUPABASE_URL = 'https://vemwhklbeknxrdcwyirxe.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlbXdoa2xiZWtueGRjd3lpcnhlIiwicm9sZSI6InFub24iLCJpYXQiOjE3ODc4MTY1MzEsImV4cCI6MjEwMzM5MjUzMX0.BnyX9No8YEYCNIvRR2RzsoaslOb8o2Ka4V_YHLboWYg';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    async function loadData() {
-      const { data, error } = await supabase.from('site_config').select('*');
-      if (data) {
-        data.forEach(row => {
-          if (row.key === 'wa') document.getElementById('waLink').value = row.value;
-          if (row.key === 'discord') document.getElementById('discordLink').value = row.value;
-          if (row.key === 'schedule') document.getElementById('schedDesc').value = row.value;
-          if (row.key === 'rules') document.getElementById('groupRules').value = row.value;
-          if (row.key === 'sponsors') document.getElementById('sponsorList').value = row.value;
-          if (row.key === 'event') {
-            try {
-              const ev = JSON.parse(row.value);
-              document.getElementById('evImg').value = ev.img || '';
-              document.getElementById('evName').value = ev.name || '';
-              document.getElementById('evDate').value = ev.date || '';
-              document.getElementById('evClass').value = ev.cls || '';
-              document.getElementById('evPrize').value = ev.prize || '';
-              document.getElementById('evRules').value = ev.rules || '';
-              document.getElementById('evReg').value = ev.reg || '';
-            } catch (err) {
-              console.error("Format JSON event salah");
-            }
-          }
-        });
-      }
+    // Fungsi logout dibuat independen agar pasti merespons
+    function handleLogout() {
+      try {
+        localStorage.clear();
+      } catch (e) {}
+      window.location.href = "index.html";
     }
 
-    window.onload = loadData;
+    let db = null;
+    try {
+      const SUPABASE_URL = 'https://vemwhklbeknxrdcwyirxe.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlbXdoa2xiZWtueGRjd3lpcnhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4MTY1MzEsImV4cCI6MjEwMzM5MjUzMX0.BnyX9No8YEYCNIvRR2RzsoaslOb8o2Ka4V_YHLboWYg';
+      db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (err) {
+      console.error("Gagal init Supabase:", err);
+    }
+
+    async function loadData() {
+      if (!db) return;
+      try {
+        const { data, error } = await db.from('site_config').select('*');
+        if (data) {
+          data.forEach(row => {
+            if (row.key === 'wa') document.getElementById('waLink').value = row.value || '';
+            if (row.key === 'discord') document.getElementById('discordLink').value = row.value || '';
+            if (row.key === 'schedule') document.getElementById('schedDesc').value = row.value || '';
+            if (row.key === 'rules') document.getElementById('groupRules').value = row.value || '';
+            if (row.key === 'sponsors') document.getElementById('sponsorList').value = row.value || '';
+            if (row.key === 'event') {
+              try {
+                const ev = JSON.parse(row.value);
+                document.getElementById('evImg').value = ev.img || '';
+                document.getElementById('evName').value = ev.name || '';
+                document.getElementById('evDate').value = ev.date || '';
+                document.getElementById('evClass').value = ev.cls || '';
+                document.getElementById('evPrize').value = ev.prize || '';
+                document.getElementById('evRules').value = ev.rules || '';
+                document.getElementById('evReg').value = ev.reg || '';
+              } catch (e) {}
+            }
+          });
+        }
+      } catch (e) {}
+    }
+
+    window.onload = function() {
+      loadData();
+    };
 
     async function saveConfig(e, type) {
       e.preventDefault();
+      if (!db) {
+        alert("Koneksi database belum siap!");
+        return;
+      }
       try {
         if (type === 'links') {
-          const { error: err1 } = await supabase.from('site_config').upsert({ key: 'wa', value: document.getElementById('waLink').value }, { onConflict: 'key' });
-          const { error: err2 } = await supabase.from('site_config').upsert({ key: 'discord', value: document.getElementById('discordLink').value }, { onConflict: 'key' });
+          const { error: err1 } = await db.from('site_config').upsert({ key: 'wa', value: document.getElementById('waLink').value }, { onConflict: 'key' });
+          const { error: err2 } = await db.from('site_config').upsert({ key: 'discord', value: document.getElementById('discordLink').value }, { onConflict: 'key' });
           if (err1 || err2) throw new Error((err1?.message || '') + ' ' + (err2?.message || ''));
           alert("Link berhasil disimpan secara online!");
           loadData();
@@ -153,7 +173,7 @@
           value = document.getElementById('sponsorList').value;
         }
 
-        const { error } = await supabase.from('site_config').upsert({ key: key, value: value }, { onConflict: 'key' });
+        const { error } = await db.from('site_config').upsert({ key: key, value: value }, { onConflict: 'key' });
         if (error) {
           alert("Gagal Supabase: " + error.message);
         } else {
@@ -163,11 +183,6 @@
       } catch (err) {
         alert("Error tertangkap: " + err.message);
       }
-    }
-
-    function handleLogout() {
-      localStorage.clear();
-      window.location.href = "index.html"; // Diarahkan langsung ke beranda
     }
   </script>
 </body>
