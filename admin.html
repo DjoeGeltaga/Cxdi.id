@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — CXDI</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="padding-top: 80px;">
+
+  <div id="loginForm" class="card" style="max-width: 400px; margin: 50px auto; padding: 30px;">
+    <h2 style="text-align: center; margin-bottom: 20px;">CXDI Admin Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email Admin" style="width: 100%; padding: 10px; margin-bottom: 15px; background: #0b0c10; border: 1px solid var(--border-color); color: #fff; border-radius: 4px;">
+    <input type="password" id="loginPassword" placeholder="Password" style="width: 100%; padding: 10px; margin-bottom: 20px; background: #0b0c10; border: 1px solid var(--border-color); color: #fff; border-radius: 4px;">
+    <button onclick="handleLogin()" class="btn btn-primary" style="width: 100%; justify-content: center;">Login Admin</button>
+  </div>
+
+  <div id="adminPanel" style="display: none; max-width: 1000px; margin: 0 auto; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+      <h2>Owner / Admin Dashboard</h2>
+      <button onclick="handleLogout()" class="btn btn-outline">Logout</button>
+    </div>
+
+    <div class="card" style="padding: 20px; margin-bottom: 30px;">
+      <h3>Pengaturan Link WhatsApp & Discord</h3>
+      <input type="text" id="settingWa" placeholder="Link WhatsApp" style="width: 100%; padding: 10px; margin: 10px 0; background: #0b0c10; border: 1px solid var(--border-color); color: #fff;">
+      <input type="text" id="settingDiscord" placeholder="Link Discord" style="width: 100%; padding: 10px; margin-bottom: 10px; background: #0b0c10; border: 1px solid var(--border-color); color: #fff;">
+      <button onclick="saveSettings()" class="btn btn-primary">Simpan Link</button>
+    </div>
+
+    <div class="card" style="padding: 20px; margin-bottom: 30px;">
+      <h3>Tambah Event Drift Baru</h3>
+      <input type="text" id="evtTitle" placeholder="Nama Event" style="width: 100%; padding: 8px; margin: 5px 0; background:#0b0c10; color:#fff; border:1px solid #242936;">
+      <input type="date" id="evtDate" style="width: 49%; padding: 8px; margin: 5px 0; background:#0b0c10; color:#fff; border:1px solid #242936;">
+      <input type="text" id="evtTime" placeholder="Jam (contoh: 20:00 WIB)" style="width: 49%; padding: 8px; margin: 5px 0; background:#0b0c10; color:#fff; border:1px solid #242936;">
+      <input type="text" id="evtMode" placeholder="Mode (misal: Tandem Drift)" style="width: 100%; padding: 8px; margin: 5px 0; background:#0b0c10; color:#fff; border:1px solid #242936;">
+      <textarea id="evtDesc" placeholder="Deskripsi Event" style="width: 100%; padding: 8px; margin: 5px 0; background:#0b0c10; color:#fff; border:1px solid #242936;"></textarea>
+      <input type="file" id="evtFile" accept="image/*" style="margin: 10px 0; color:#fff;">
+      <button onclick="addEvent()" class="btn btn-primary">Publish Event</button>
+    </div>
+
+    <div class="card" style="padding: 20px; margin-bottom: 30px;">
+      <h3>Upload Foto Galeri</h3>
+      <input type="text" id="galTitle" placeholder="Judul Foto" style="width: 100%; padding: 8px; margin: 5px 0; background:#0b0c10; color:#fff; border:1px solid #242936;">
+      <select id="galCategory" style="width: 100%; padding: 8px; margin: 5px 0; background:#0b0c10; color:#fff; border:1px solid #242936;">
+        <option value="Tandem Drift">Tandem Drift</option>
+        <option value="Solo Drift">Solo Drift</option>
+        <option value="Event">Event</option>
+        <option value="Meet Up">Meet Up</option>
+        <option value="Community">Community</option>
+      </select>
+      <input type="file" id="galFile" accept="image/*" style="margin: 10px 0; color:#fff;">
+      <button onclick="addGallery()" class="btn btn-primary">Upload Foto</button>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
