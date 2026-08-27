@@ -1,105 +1,215 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Google Sheets</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CXDI Admin Cloud Panel</title>
+  <style>
+    body { background-color: #0d0e12; color: white; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .container { width: 100%; max-width: 600px; }
+    .card { background: #16181f; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2a2d37; }
+    h2 { color: #e11d48; margin-top: 0; font-size: 20px; }
+    h3 { font-size: 16px; margin-bottom: 15px; border-bottom: 1px solid #2a2d37; padding-bottom: 8px; }
+    label { display: block; font-size: 13px; color: #9ca3af; margin-bottom: 5px; }
+    input, textarea { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 6px; border: 1px solid #2a2d37; background: #0d0e12; color: white; box-sizing: border-box; font-size: 14px; }
+    textarea { resize: vertical; height: 80px; }
+    button { width: 100%; padding: 12px; border-radius: 6px; border: none; background: #e11d48; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
+    button:hover { background: #be123c; }
+    .btn-logout { background: #374151; margin-top: 10px; width: auto; padding: 8px 15px; font-size: 12px; }
+  </style>
 </head>
-<body class="bg-gray-100 p-4 sm:p-6">
-    <div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-md">
-        <h1 class="text-xl font-bold mb-4 text-gray-800">Dashboard Data Spreadsheet</h1>
-        
-        <!-- Form Kirim/Update Data (POST) -->
-        <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <h2 class="text-md font-semibold mb-3 text-gray-700">Tambah / Update Data</h2>
-            <input type="text" id="inputKey" placeholder="Nama Kunci (Key)" class="w-full p-2 mb-3 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <input type="text" id="inputValue" placeholder="Nilai (Value)" class="w-full p-2 mb-3 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button onclick="saveData()" class="w-full bg-blue-600 text-white p-2 rounded text-sm font-medium hover:bg-blue-700 transition">Simpan Data</button>
-            <p id="statusMsg" class="text-xs mt-2 text-center"></p>
-        </div>
+<body>
 
-        <!-- Tampilan Data (GET) -->
-        <div>
-            <div class="flex justify-between items-center mb-2">
-                <h2 class="text-md font-semibold text-gray-700">Daftar Data Saat Ini</h2>
-                <button onclick="loadData()" class="bg-gray-200 text-gray-700 px-2.5 py-1 rounded text-xs hover:bg-gray-300 transition">Muat Ulang</button>
-            </div>
-            <div id="dataContainer" class="border border-gray-200 rounded-lg p-3 bg-gray-50 min-h-[120px] max-h-[250px] overflow-y-auto text-sm">
-                <p class="text-gray-400 text-center mt-8">Memuat data...</p>
-            </div>
-        </div>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2>☁️ CXDI Cloud Admin Panel</h2>
+      <button type="button" onclick="handleLogout()" class="btn-logout">Logout & ke Beranda</button>
     </div>
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwk-Q3NEZPsbr8GfBiiU6408G1_ND0Qj4Ret9P7tyyz9UYnX9K1IspHwrX-DMHaal96Og/exec";
+    <div class="card">
+      <h3>🔗 Link Komunitas & Sosmed</h3>
+      <form onsubmit="saveConfig(event, 'links'); return false;">
+        <label>Link WhatsApp</label>
+        <input type="url" id="waLink" required>
+        <label>Link Discord</label>
+        <input type="url" id="discordLink" required>
+        <button type="submit">Simpan Link</button>
+      </form>
+    </div>
 
-        // Fungsi Mengambil Data (GET)
-        async function loadData() {
-            const container = document.getElementById('dataContainer');
-            container.innerHTML = '<p class="text-gray-400 text-center mt-8">Memuat...</p>';
-            try {
-                const response = await fetch(SCRIPT_URL);
-                const data = await response.json();
-                
-                if (Object.keys(data).length === 0) {
-                    container.innerHTML = '<p class="text-gray-400 text-center mt-8">Belum ada data di spreadsheet.</p>';
-                    return;
-                }
+    <div class="card">
+      <h3>🏁 Event & Pendaftaran</h3>
+      <form onsubmit="saveConfig(event, 'event'); return false;">
+        <label>URL Poster Foto Event</label>
+        <input type="url" id="evImg" placeholder="Link gambar (Imgur/GitHub/dll)" required>
+        <label>Nama Event</label>
+        <input type="text" id="evName" required>
+        <label>Tanggal & Waktu</label>
+        <input type="text" id="evDate" required>
+        <label>Class</label>
+        <input type="text" id="evClass" required>
+        <label>Hadiah</label>
+        <input type="text" id="evPrize" required>
+        <label>Rules Event</label>
+        <textarea id="evRules" required></textarea>
+        <label>Link Pendaftaran</label>
+        <input type="url" id="evReg" required>
+        <button type="submit">Publikasikan Event</button>
+      </form>
+    </div>
 
-                let html = '<ul class="divide-y divide-gray-200">';
-                for (const [key, value] of Object.entries(data)) {
-                    html += `<li class="py-2 flex justify-between items-center"><span class="font-medium text-gray-800">${key}</span> <span class="text-gray-600">${value}</span></li>`;
-                }
-                html += '</ul>';
-                container.innerHTML = html;
-            } catch (error) {
-                container.innerHTML = '<p class="text-red-500 text-center mt-8">Gagal memuat data.</p>';
-                console.error(error);
+    <div class="card">
+      <h3>📸 Upload Galeri Event Publik</h3>
+      <form onsubmit="saveConfig(event, 'gallery'); return false;">
+        <label>Judul / Nama Galeri</label>
+        <input type="text" id="galTitle" placeholder="Contoh: Keseruan Event Rally Drift" required>
+        <label>URL Foto Galeri</label>
+        <input type="url" id="galImg" placeholder="Link gambar galeri (Imgur/GitHub/dll)" required>
+        <label>Deskripsi Galeri</label>
+        <textarea id="galDesc" placeholder="Keterangan singkat tentang galeri event..." required></textarea>
+        <button type="submit">Upload Galeri Publik</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>📅 Jadwal Pertandingan</h3>
+      <form onsubmit="saveConfig(event, 'schedule'); return false;">
+        <textarea id="schedDesc" required></textarea>
+        <button type="submit">Simpan Jadwal</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>📜 Rules Grup</h3>
+      <form onsubmit="saveConfig(event, 'rules'); return false;">
+        <textarea id="groupRules" required></textarea>
+        <button type="submit">Simpan Rules</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>🤝 Sponsor</h3>
+      <form onsubmit="saveConfig(event, 'sponsors'); return false;">
+        <textarea id="sponsorList" required></textarea>
+        <button type="submit">Simpan Sponsor</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    function handleLogout() {
+      try {
+        localStorage.clear();
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    let db = null;
+    try {
+      const SUPABASE_URL = 'https://vemwhklbeknxrdcwyirxe.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlbXdoa2xiZWtueGRjd3lpcnhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4MTY1MzEsImV4cCI6MjEwMzM5MjUzMX0.BnyX9No8YEYCNIvRR2RzsoaslOb8o2Ka4V_YHLboWYg';
+      db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (err) {
+      console.error("Gagal init Supabase:", err);
+    }
+
+    async function loadData() {
+      if (!db) return;
+      try {
+        const { data, error } = await db.from('site_config').select('*');
+        if (data) {
+          data.forEach(row => {
+            if (row.key === 'wa') document.getElementById('waLink').value = row.value || '';
+            if (row.key === 'discord') document.getElementById('discordLink').value = row.value || '';
+            if (row.key === 'schedule') document.getElementById('schedDesc').value = row.value || '';
+            if (row.key === 'rules') document.getElementById('groupRules').value = row.value || '';
+            if (row.key === 'sponsors') document.getElementById('sponsorList').value = row.value || '';
+            if (row.key === 'event') {
+              try {
+                const ev = JSON.parse(row.value);
+                document.getElementById('evImg').value = ev.img || '';
+                document.getElementById('evName').value = ev.name || '';
+                document.getElementById('evDate').value = ev.date || '';
+                document.getElementById('evClass').value = ev.cls || '';
+                document.getElementById('evPrize').value = ev.prize || '';
+                document.getElementById('evRules').value = ev.rules || '';
+                document.getElementById('evReg').value = ev.reg || '';
+              } catch (e) {}
             }
+            if (row.key === 'gallery') {
+              try {
+                const gal = JSON.parse(row.value);
+                document.getElementById('galTitle').value = gal.title || '';
+                document.getElementById('galImg').value = gal.img || '';
+                document.getElementById('galDesc').value = gal.desc || '';
+              } catch (e) {}
+            }
+          });
+        }
+      } catch (e) {}
+    }
+
+    window.onload = function() {
+      loadData();
+    };
+
+    async function saveConfig(e, type) {
+      e.preventDefault();
+      if (!db) {
+        alert("Koneksi database belum siap!");
+        return;
+      }
+      try {
+        if (type === 'links') {
+          const { error: err1 } = await db.from('site_config').upsert({ key: 'wa', value: document.getElementById('waLink').value }, { onConflict: 'key' });
+          const { error: err2 } = await db.from('site_config').upsert({ key: 'discord', value: document.getElementById('discordLink').value }, { onConflict: 'key' });
+          if (err1 || err2) throw new Error((err1?.message || '') + ' ' + (err2?.message || ''));
+          alert("Link berhasil disimpan secara online!");
+          loadData();
+          return;
+        } 
+        
+        let key = type;
+        let value = '';
+
+        if (type === 'event') {
+          const evData = {
+            img: document.getElementById('evImg').value,
+            name: document.getElementById('evName').value,
+            date: document.getElementById('evDate').value,
+            cls: document.getElementById('evClass').value,
+            prize: document.getElementById('evPrize').value,
+            rules: document.getElementById('evRules').value,
+            reg: document.getElementById('evReg').value
+          };
+          value = JSON.stringify(evData);
+        } else if (type === 'gallery') {
+          const galData = {
+            title: document.getElementById('galTitle').value,
+            img: document.getElementById('galImg').value,
+            desc: document.getElementById('galDesc').value
+          };
+          value = JSON.stringify(galData);
+        } else if (type === 'schedule') {
+          value = document.getElementById('schedDesc').value;
+        } else if (type === 'rules') {
+          value = document.getElementById('groupRules').value;
+        } else if (type === 'sponsors') {
+          value = document.getElementById('sponsorList').value;
         }
 
-        // Fungsi Menyimpan Data (POST)
-        async function saveData() {
-            const key = document.getElementById('inputKey').value.trim();
-            const value = document.getElementById('inputValue').value.trim();
-            const statusMsg = document.getElementById('statusMsg');
-
-            if (!key || !value) {
-                statusMsg.textContent = "Key dan Value wajib diisi!";
-                statusMsg.className = "text-xs mt-2 text-center text-red-500 font-medium";
-                return;
-            }
-
-            statusMsg.textContent = "Menyimpan...";
-            statusMsg.className = "text-xs mt-2 text-center text-blue-500 font-medium";
-
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: {
-                        "Content-Type": "text/plain;charset=utf-8",
-                    },
-                    body: JSON.stringify({ key, value })
-                });
-
-                statusMsg.textContent = "Berhasil disimpan!";
-                statusMsg.className = "text-xs mt-2 text-center text-green-600 font-medium";
-                document.getElementById('inputKey').value = '';
-                document.getElementById('inputValue').value = '';
-                
-                // Refresh data otomatis setelah 1 detik
-                setTimeout(loadData, 1000);
-            } catch (error) {
-                statusMsg.textContent = "Gagal menyimpan!";
-                statusMsg.className = "text-xs mt-2 text-center text-red-500 font-medium";
-                console.error(error);
-            }
+        const { error } = await db.from('site_config').upsert({ key: key, value: value }, { onConflict: 'key' });
+        if (error) {
+          alert("Gagal Supabase: " + error.message);
+        } else {
+          alert("Data berhasil dipublikasikan secara global!");
+          loadData();
         }
-
-        // Jalankan saat pertama kali dibuka
-        loadData();
-    </script>
+      } catch (err) {
+        alert("Error tertangkap: " + err.message);
+      }
+    }
+  </script>
 </body>
 </html>
