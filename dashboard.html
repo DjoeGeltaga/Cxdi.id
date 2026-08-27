@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CXDI Admin Control Panel</title>
+  <title>CXDI Admin Cloud Panel</title>
   <style>
     body { background-color: #0d0e12; color: white; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
     .container { width: 100%; max-width: 600px; }
@@ -22,214 +22,140 @@
 
   <div class="container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h2>⚙️ CXDI Admin Master Panel</h2>
+      <h2>☁️ CXDI Cloud Admin Panel</h2>
       <button onclick="handleLogout()" class="btn-logout">Logout</button>
     </div>
 
-    <!-- 1. LINK SOSMED -->
     <div class="card">
-      <h3>🔗 Kelola Link Komunitas (WA & Discord)</h3>
-      <form onsubmit="saveLinks(event)">
-        <label>Link Grup WhatsApp</label>
-        <input type="url" id="waLink" placeholder="https://chat.whatsapp.com/..." required>
-        <label>Link Discord Server</label>
-        <input type="url" id="discordLink" placeholder="https://discord.gg/..." required>
-        <button type="submit">Simpan Link Sosmed</button>
+      <h3>🔗 Link Komunitas & Sosmed</h3>
+      <form onsubmit="saveConfig(event, 'links')">
+        <label>Link WhatsApp</label>
+        <input type="url" id="waLink" required>
+        <label>Link Discord</label>
+        <input type="url" id="discordLink" required>
+        <button type="submit">Simpan Link</button>
       </form>
     </div>
 
-    <!-- 2. DETAIL EVENT + FOTO -->
     <div class="card">
-      <h3>🏁 Kelola Event, Poster & Pendaftaran</h3>
-      <form onsubmit="saveEvent(event)">
-        <label>Banner / Poster Foto Event (Akan dikompres otomatis)</label>
-        <input type="file" id="evFile" accept="image/*" style="padding: 8px; margin-bottom: 12px;">
+      <h3>🏁 Event & Pendaftaran</h3>
+      <form onsubmit="saveConfig(event, 'event')">
+        <label>URL Poster Foto Event</label>
+        <input type="url" id="evImg" placeholder="Link gambar (Imgur/GitHub/dll)" required>
         <label>Nama Event</label>
-        <input type="text" id="evName" placeholder="Contoh: CXDI Drift Championship S1" required>
+        <input type="text" id="evName" required>
         <label>Tanggal & Waktu</label>
-        <input type="text" id="evDate" placeholder="Contoh: 15 September 2026, 19:00 WIB" required>
-        <label>Class / Kategori Mobil</label>
-        <input type="text" id="evClass" placeholder="Contoh: Tier 3 & Tier 4" required>
-        <label>Total Hadiah (Prize Pool)</label>
-        <input type="text" id="evPrize" placeholder="Contoh: Rp 1.500.000" required>
-        <label>Rules / Peraturan Event</label>
-        <textarea id="evRules" placeholder="1. No cutting track..." required></textarea>
+        <input type="text" id="evDate" required>
+        <label>Class</label>
+        <input type="text" id="evClass" required>
+        <label>Hadiah</label>
+        <input type="text" id="evPrize" required>
+        <label>Rules Event</label>
+        <textarea id="evRules" required></textarea>
         <label>Link Pendaftaran</label>
-        <input type="url" id="evReg" placeholder="https://forms.gle/..." required>
-        <button type="submit">Simpan & Publikasikan Event</button>
+        <input type="url" id="evReg" required>
+        <button type="submit">Publikasikan Event</button>
       </form>
     </div>
 
-    <!-- 3. JADWAL PERTANDINGAN -->
     <div class="card">
       <h3>📅 Jadwal Pertandingan</h3>
-      <form onsubmit="saveSchedule(event)">
-        <label>Rincian Jadwal & Babak</label>
-        <textarea id="schedDesc" placeholder="- 19:00 WIB: Briefing Peserta&#10;- 19:30 WIB: Kualifikasi" required></textarea>
+      <form onsubmit="saveConfig(event, 'schedule')">
+        <textarea id="schedDesc" required></textarea>
         <button type="submit">Simpan Jadwal</button>
       </form>
     </div>
 
-    <!-- 4. UPLOAD GALERI FOTO -->
     <div class="card">
-      <h3>🖼️ Upload Foto Galeri</h3>
-      <form onsubmit="saveGallery(event)">
-        <label>Pilih File Foto</label>
-        <input type="file" id="galFile" accept="image/*" required style="padding: 8px;">
-        <label>Keterangan Foto</label>
-        <input type="text" id="galTitle" placeholder="Contoh: Gathering Tasikmalaya" required>
-        <button type="submit">Tambah ke Galeri</button>
+      <h3>📜 Rules Grup</h3>
+      <form onsubmit="saveConfig(event, 'rules')">
+        <textarea id="groupRules" required></textarea>
+        <button type="submit">Simpan Rules</button>
       </form>
     </div>
 
-    <!-- 5. RULES GRUP -->
     <div class="card">
-      <h3>📜 Rules / Peraturan Grup</h3>
-      <form onsubmit="saveRules(event)">
-        <label>Daftar Peraturan Komunitas</label>
-        <textarea id="groupRules" placeholder="1. Saling menghargai..." required></textarea>
-        <button type="submit">Simpan Rules Grup</button>
-      </form>
-    </div>
-
-    <!-- 6. SPONSOR -->
-    <div class="card">
-      <h3>🤝 Sponsor & Partner</h3>
-      <form onsubmit="saveSponsor(event)">
-        <label>Daftar Sponsor / Partner</label>
-        <textarea id="sponsorList" placeholder="PT Fakta Jabbar Industri" required></textarea>
+      <h3>🤝 Sponsor</h3>
+      <form onsubmit="saveConfig(event, 'sponsors')">
+        <textarea id="sponsorList" required></textarea>
         <button type="submit">Simpan Sponsor</button>
       </form>
     </div>
   </div>
 
+  <!-- Memuat library Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    // MASUKKAN KREDENSIAL SUPABASE ANDA DI SINI
+    const SUPABASE_URL = 'GANTI_DENGAN_URL_SUPABASE_ANDA';
+    const SUPABASE_ANON_KEY = 'GANTI_DENGAN_ANON_KEY_SUPABASE_ANDA';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     if (!localStorage.getItem('sb_access_token')) {
       alert("Sesi habis. Silakan login ulang.");
       window.location.href = "admin.html";
     }
 
-    window.onload = function() {
-      document.getElementById('waLink').value = localStorage.getItem('cfg_wa') || '';
-      document.getElementById('discordLink').value = localStorage.getItem('cfg_discord') || '';
-      
-      const ev = JSON.parse(localStorage.getItem('active_event') || '{}');
-      if(ev.name) {
-        document.getElementById('evName').value = ev.name || '';
-        document.getElementById('evDate').value = ev.date || '';
-        document.getElementById('evClass').value = ev.cls || '';
-        document.getElementById('evPrize').value = ev.prize || '';
-        document.getElementById('evRules').value = ev.rules || '';
-        document.getElementById('evReg').value = ev.reg || '';
-      }
-
-      document.getElementById('schedDesc').value = localStorage.getItem('cfg_schedule') || '';
-      document.getElementById('groupRules').value = localStorage.getItem('cfg_rules') || '';
-      document.getElementById('sponsorList').value = localStorage.getItem('cfg_sponsors') || '';
-    };
-
-    // Fungsi Kompresi Foto agar aman dari batas memori browser (5MB)
-    function compressImage(file, callback) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          const max_size = 800; // Maksimal lebar/tinggi 800px
-          if (width > height) {
-            if (width > max_size) { height *= max_size / width; width = max_size; }
-          } else {
-            if (height > max_size) { width *= max_size / height; height = max_size; }
+    async function loadData() {
+      const { data, error } = await supabase.from('site_config').select('*');
+      if (data) {
+        data.forEach(row => {
+          if (row.key === 'wa') document.getElementById('waLink').value = row.value;
+          if (row.key === 'discord') document.getElementById('discordLink').value = row.value;
+          if (row.key === 'schedule') document.getElementById('schedDesc').value = row.value;
+          if (row.key === 'rules') document.getElementById('groupRules').value = row.value;
+          if (row.key === 'sponsors') document.getElementById('sponsorList').value = row.value;
+          if (row.key === 'event') {
+            const ev = JSON.parse(row.value);
+            document.getElementById('evImg').value = ev.img || '';
+            document.getElementById('evName').value = ev.name || '';
+            document.getElementById('evDate').value = ev.date || '';
+            document.getElementById('evClass').value = ev.cls || '';
+            document.getElementById('evPrize').value = ev.prize || '';
+            document.getElementById('evRules').value = ev.rules || '';
+            document.getElementById('evReg').value = ev.reg || '';
           }
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          callback(canvas.toDataURL('image/jpeg', 0.7)); // Kompres kualitas 70%
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+        });
+      }
     }
 
-    function saveLinks(e) {
-      e.preventDefault();
-      localStorage.setItem('cfg_wa', document.getElementById('waLink').value);
-      localStorage.setItem('cfg_discord', document.getElementById('discordLink').value);
-      alert("Link komunitas berhasil disimpan!");
-    }
+    window.onload = loadData;
 
-    function saveEvent(e) {
+    async function saveConfig(e, type) {
       e.preventDefault();
-      const fileInput = document.getElementById('evFile');
-      
-      const processSave = (imgBase64) => {
-        const existingEvent = JSON.parse(localStorage.getItem('active_event') || '{}');
-        const eventData = {
+      let key = type;
+      let value = '';
+
+      if (type === 'links') {
+        await supabase.from('site_config').upsert({ key: 'wa', value: document.getElementById('waLink').value });
+        await supabase.from('site_config').upsert({ key: 'discord', value: document.getElementById('discordLink').value });
+        alert("Link berhasil disimpan secara online!");
+        return;
+      } else if (type === 'event') {
+        const evData = {
+          img: document.getElementById('evImg').value,
           name: document.getElementById('evName').value,
           date: document.getElementById('evDate').value,
           cls: document.getElementById('evClass').value,
           prize: document.getElementById('evPrize').value,
           rules: document.getElementById('evRules').value,
-          reg: document.getElementById('evReg').value,
-          img: imgBase64 !== undefined ? imgBase64 : (existingEvent.img || '')
+          reg: document.getElementById('evReg').value
         };
-        try {
-          localStorage.setItem('active_event', JSON.stringify(eventData));
-          alert("Event dan poster berhasil dipublikasikan!");
-          location.reload();
-        } catch (err) {
-          alert("Gagal menyimpan! Memori penyimpanan browser penuh.");
-        }
-      };
+        value = JSON.stringify(evData);
+      } else if (type === 'schedule') {
+        value = document.getElementById('schedDesc').value;
+      } else if (type === 'rules') {
+        value = document.getElementById('groupRules').value;
+      } else if (type === 'sponsors') {
+        value = document.getElementById('sponsorList').value;
+      }
 
-      if (fileInput.files.length > 0) {
-        compressImage(fileInput.files[0], function(compressedBase64) {
-          processSave(compressedBase64);
-        });
+      const { error } = await supabase.from('site_config').upsert({ key: key, value: value });
+      if (error) {
+        alert("Gagal menyimpan ke database: " + error.message);
       } else {
-        processSave(undefined);
+        alert("Data berhasil dipublikasikan secara global ke semua HP!");
       }
-    }
-
-    function saveSchedule(e) {
-      e.preventDefault();
-      localStorage.setItem('cfg_schedule', document.getElementById('schedDesc').value);
-      alert("Jadwal pertandingan berhasil disimpan!");
-    }
-
-    function saveGallery(e) {
-      e.preventDefault();
-      const fileInput = document.getElementById('galFile');
-      const title = document.getElementById('galTitle').value;
-      
-      if (fileInput.files.length > 0) {
-        compressImage(fileInput.files[0], function(compressedBase64) {
-          try {
-            let gallery = JSON.parse(localStorage.getItem('cfg_gallery') || '[]');
-            gallery.push({ title: title, img: compressedBase64 });
-            localStorage.setItem('cfg_gallery', JSON.stringify(gallery));
-            alert("Foto berhasil ditambahkan ke galeri!");
-            location.reload();
-          } catch (err) {
-            alert("Gagal menyimpan ke galeri! Memori penuh.");
-          }
-        });
-      }
-    }
-
-    function saveRules(e) {
-      e.preventDefault();
-      localStorage.setItem('cfg_rules', document.getElementById('groupRules').value);
-      alert("Peraturan grup berhasil disimpan!");
-    }
-
-    function saveSponsor(e) {
-      e.preventDefault();
-      localStorage.setItem('cfg_sponsors', document.getElementById('sponsorList').value);
-      alert("Daftar sponsor berhasil disimpan!");
     }
 
     function handleLogout() {
