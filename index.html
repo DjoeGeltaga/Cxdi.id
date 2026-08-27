@@ -91,7 +91,10 @@
 
     <!-- MAIN CONTENT CONTAINER -->
     <main id="app-content" class="flex-grow">
-        <!-- Dynamic Content Injected Here -->
+        <!-- Default Loading State -->
+        <div class="flex items-center justify-center py-32 text-gray-400">
+            <i class="fa-solid fa-circle-notch fa-spin text-2xl mr-3 text-drift-red"></i> Memuat CXDI...
+        </div>
     </main>
 
     <!-- FOOTER -->
@@ -108,7 +111,6 @@
 
     <!-- APP SCRIPT & SUPABASE CONFIG -->
     <script>
-        // Supabase Credentials Connected
         const SUPABASE_URL = 'https://vemwhklbeknxdcwyirxe.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_BunHy3v0BcX54Z_R9OBpkw__e03uXAH';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -116,36 +118,36 @@
         let currentRoute = 'home';
         let currentUser = null;
 
-        // Simple Router Controller
         async function router(route) {
             currentRoute = route;
             const content = document.getElementById('app-content');
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // Check Auth state for admin routes
-            const { data: { session } } = await supabase.auth.getSession();
-            currentUser = session ? session.user : null;
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                currentUser = session ? session.user : null;
+            } catch (e) {
+                currentUser = null;
+            }
 
-            if (route.startsWith('admin/')) {
-                if (!currentUser) {
-                    renderAdminLogin();
-                    return;
-                }
+            if (route.startsWith('admin/') && !currentUser) {
+                renderAdminLogin();
+                return;
             }
 
             switch(route) {
-                case 'home': renderHome(); break;
-                case 'events': renderEvents(); break;
+                case 'home': await renderHome(); break;
+                case 'events': await renderEvents(); break;
                 case 'giveaway': renderGiveaway(); break;
-                case 'gallery': renderGallery(); break;
-                case 'community': renderCommunity(); break;
+                case 'gallery': await renderGallery(); break;
+                case 'community': await renderCommunity(); break;
                 case 'admin/login': renderAdminLogin(); break;
-                case 'admin/dashboard': renderAdminDashboard(); break;
-                case 'admin/events': renderAdminEvents(); break;
+                case 'admin/dashboard': await renderAdminDashboard(); break;
+                case 'admin/events': await renderAdminEvents(); break;
                 case 'admin/giveaways': renderAdminGiveaways(); break;
-                case 'admin/gallery': renderAdminGallery(); break;
-                case 'admin/settings': renderAdminSettings(); break;
-                default: renderHome();
+                case 'admin/gallery': await renderAdminGallery(); break;
+                case 'admin/settings': await renderAdminSettings(); break;
+                default: await renderHome();
             }
         }
 
@@ -155,26 +157,44 @@
         }
 
         async function checkAdminAccess() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                router('admin/dashboard');
-            } else {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    router('admin/dashboard');
+                } else {
+                    router('admin/login');
+                }
+            } catch (e) {
                 router('admin/login');
             }
         }
 
         // --- 1. HOME VIEW ---
         async function renderHome() {
-            // Fetch stats and dynamic links
-            const { count: eventCount } = await supabase.from('events').select('*', { count: 'exact', head: true });
-            const { count: galleryCount } = await supabase.from('gallery').select('*', { count: 'exact', head: true });
-            const { data: settings } = await supabase.from('settings').select('*');
-            
-            const waLink = settings?.find(s => s.key === 'whatsapp_link')?.value || 'https://chat.whatsapp.com';
-            const dcLink = settings?.find(s => s.key === 'discord_link')?.value || 'https://discord.gg';
+            let eventCount = 0;
+            let galleryCount = 0;
+            let waLink = 'https://chat.whatsapp.com';
+            let dcLink = 'https://discord.gg';
+
+            try {
+                const evRes = await supabase.from('events').select('*', { count: 'exact', head: true });
+                if (evRes.count !== null) eventCount = evRes.count;
+            } catch (e) {}
+
+            try {
+                const galRes = await supabase.from('gallery').select('*', { count: 'exact', head: true });
+                if (galRes.count !== null) galleryCount = galRes.count;
+            } catch (e) {}
+
+            try {
+                const { data: settings } = await supabase.from('settings').select('*');
+                if (settings) {
+                    waLink = settings.find(s => s.key === 'whatsapp_link')?.value || waLink;
+                    dcLink = settings.find(s => s.key === 'discord_link')?.value || dcLink;
+                }
+            } catch (e) {}
 
             document.getElementById('app-content').innerHTML = `
-                <!-- Hero Section -->
                 <div class="relative bg-gradient-to-b from-black/80 to-drift-dark py-20 lg:py-32 border-b border-drift-border overflow-hidden">
                     <div class="absolute inset-0 z-0 opacity-30 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?q=80&w=1600&auto=format&fit=crop');"></div>
                     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
@@ -196,7 +216,6 @@
                     </div>
                 </div>
 
-                <!-- Stats Section -->
                 <div class="max-w-7xl mx-auto px-4 py-12">
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="bg-drift-card border border-drift-border p-6 rounded-lg text-center">
@@ -204,7 +223,7 @@
                             <span class="text-xs text-gray-400 tracking-wider uppercase">Active Drivers</span>
                         </div>
                         <div class="bg-drift-card border border-drift-border p-6 rounded-lg text-center">
-                            <span class="block font-heading font-bold text-4xl text-white mb-1">${eventCount || 0}</span>
+                            <span class="block font-heading font-bold text-4xl text-white mb-1">${eventCount}</span>
                             <span class="text-xs text-gray-400 tracking-wider uppercase">Drift Events</span>
                         </div>
                         <div class="bg-drift-card border border-drift-border p-6 rounded-lg text-center">
@@ -212,13 +231,12 @@
                             <span class="text-xs text-gray-400 tracking-wider uppercase">Tandem Session</span>
                         </div>
                         <div class="bg-drift-card border border-drift-border p-6 rounded-lg text-center">
-                            <span class="block font-heading font-bold text-4xl text-white mb-1">${galleryCount || 0}</span>
+                            <span class="block font-heading font-bold text-4xl text-white mb-1">${galleryCount}</span>
                             <span class="text-xs text-gray-400 tracking-wider uppercase">Photo Gallery</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- About Section -->
                 <div class="max-w-7xl mx-auto px-4 py-16 border-t border-drift-border">
                     <div class="grid md:grid-cols-2 gap-12 items-center">
                         <div>
@@ -241,11 +259,15 @@
 
         // --- 2. EVENTS VIEW ---
         async function renderEvents() {
-            const { data: events, error } = await supabase.from('events').select('*').order('date', { ascending: true });
+            let events = [];
+            try {
+                const res = await supabase.from('events').select('*').order('date', { ascending: true });
+                if (res.data) events = res.data;
+            } catch (e) {}
 
             let eventsHtml = '';
             if (!events || events.length === 0) {
-                eventsHtml = `<div class="col-span-full text-center py-12 text-gray-400">Belum ada event terjadwal saat ini.</div>`;
+                eventsHtml = `<div class="col-span-full text-center py-12 text-gray-400 bg-drift-card border border-drift-border rounded-lg">Belum ada event terjadwal saat ini.</div>`;
             } else {
                 eventsHtml = events.map(ev => `
                     <div class="bg-drift-card border border-drift-border rounded-lg overflow-hidden flex flex-col justify-between hover:border-drift-red transition duration-300">
@@ -253,7 +275,7 @@
                             <div class="relative h-48 bg-gray-900">
                                 <img src="${ev.image_url || 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=800&auto=format&fit=crop'}" alt="${ev.name}" class="w-full h-full object-cover">
                                 <span class="absolute top-3 right-3 px-3 py-1 rounded text-xs font-bold uppercase tracking-wider ${ev.status === 'Upcoming' ? 'bg-amber-500 text-black' : ev.status === 'Ongoing' ? 'bg-drift-red text-white animate-pulse' : 'bg-gray-700 text-white'}">
-                                    ${ev.status}
+                                    ${ev.status || 'Upcoming'}
                                 </span>
                             </div>
                             <div class="p-6">
@@ -291,7 +313,7 @@
         }
 
         // --- 3. GIVEAWAY VIEW ---
-        async function renderGiveaway() {
+        function renderGiveaway() {
             document.getElementById('app-content').innerHTML = `
                 <div class="max-w-7xl mx-auto px-4 py-12 text-center">
                     <span class="text-drift-red font-bold text-xs tracking-widest uppercase">Community Rewards</span>
@@ -307,11 +329,15 @@
 
         // --- 4. GALLERY VIEW ---
         async function renderGallery() {
-            const { data: gallery } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
+            let gallery = [];
+            try {
+                const res = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
+                if (res.data) gallery = res.data;
+            } catch (e) {}
 
             let galleryHtml = '';
             if (!gallery || gallery.length === 0) {
-                galleryHtml = `<div class="col-span-full text-center py-12 text-gray-400">Belum ada foto dalam galeri.</div>`;
+                galleryHtml = `<div class="col-span-full text-center py-12 text-gray-400 bg-drift-card border border-drift-border rounded-lg">Belum ada foto dalam galeri.</div>`;
             } else {
                 galleryHtml = gallery.map(item => `
                     <div class="bg-drift-card border border-drift-border rounded-lg overflow-hidden group">
@@ -342,9 +368,15 @@
 
         // --- 5. COMMUNITY VIEW ---
         async function renderCommunity() {
-            const { data: settings } = await supabase.from('settings').select('*');
-            const waLink = settings?.find(s => s.key === 'whatsapp_link')?.value || 'https://chat.whatsapp.com';
-            const dcLink = settings?.find(s => s.key === 'discord_link')?.value || 'https://discord.gg';
+            let waLink = 'https://chat.whatsapp.com';
+            let dcLink = 'https://discord.gg';
+            try {
+                const { data: settings } = await supabase.from('settings').select('*');
+                if (settings) {
+                    waLink = settings.find(s => s.key === 'whatsapp_link')?.value || waLink;
+                    dcLink = settings.find(s => s.key === 'discord_link')?.value || dcLink;
+                }
+            } catch (e) {}
 
             document.getElementById('app-content').innerHTML = `
                 <div class="max-w-4xl mx-auto px-4 py-16 text-center">
@@ -411,8 +443,16 @@
 
         // --- 7. ADMIN DASHBOARD ---
         async function renderAdminDashboard() {
-            const { count: eventCount } = await supabase.from('events').select('*', { count: 'exact', head: true });
-            const { count: galleryCount } = await supabase.from('gallery').select('*', { count: 'exact', head: true });
+            let eventCount = 0;
+            let galleryCount = 0;
+            try {
+                const evRes = await supabase.from('events').select('*', { count: 'exact', head: true });
+                if (evRes.count !== null) eventCount = evRes.count;
+            } catch(e) {}
+            try {
+                const galRes = await supabase.from('gallery').select('*', { count: 'exact', head: true });
+                if (galRes.count !== null) galleryCount = galRes.count;
+            } catch(e) {}
 
             document.getElementById('app-content').innerHTML = `
                 <div class="max-w-7xl mx-auto px-4 py-12">
@@ -432,11 +472,11 @@
                     <div class="grid md:grid-cols-3 gap-6 mb-12">
                         <div class="bg-drift-card border border-drift-border p-6 rounded-lg">
                             <span class="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Events</span>
-                            <span class="block font-heading font-bold text-4xl text-white mt-2">${eventCount || 0}</span>
+                            <span class="block font-heading font-bold text-4xl text-white mt-2">${eventCount}</span>
                         </div>
                         <div class="bg-drift-card border border-drift-border p-6 rounded-lg">
                             <span class="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Gallery Photos</span>
-                            <span class="block font-heading font-bold text-4xl text-drift-red mt-2">${galleryCount || 0}</span>
+                            <span class="block font-heading font-bold text-4xl text-drift-red mt-2">${galleryCount}</span>
                         </div>
                         <div class="bg-drift-card border border-drift-border p-6 rounded-lg">
                             <span class="text-gray-400 text-xs font-bold uppercase tracking-wider">Status Server</span>
@@ -454,9 +494,13 @@
 
         // --- 8. ADMIN EVENTS MANAGEMENT ---
         async function renderAdminEvents() {
-            const { data: events } = await supabase.from('events').select('*').order('date', { ascending: true });
+            let events = [];
+            try {
+                const res = await supabase.from('events').select('*').order('date', { ascending: true });
+                if (res.data) events = res.data;
+            } catch(e) {}
 
-            let rows = events?.map(ev => `
+            let rows = events.map(ev => `
                 <tr class="border-b border-drift-border">
                     <td class="py-4 px-4 font-bold text-white">${ev.name}</td>
                     <td class="py-4 px-4 text-gray-300">${ev.date} (${ev.time})</td>
@@ -465,7 +509,7 @@
                         <button onclick="deleteEvent('${ev.id}')" class="bg-red-950 text-drift-red px-3 py-1 rounded text-xs font-bold hover:bg-drift-red hover:text-white transition">Hapus</button>
                     </td>
                 </tr>
-            `).join('') || `<tr><td colspan="4" class="text-center py-6 text-gray-400">Belum ada event.</td></tr>`;
+            `).join('') || `<tr><td colspan="4" class="text-center py-6 text-gray-400">Belum ada event atau tabel belum dibuat.</td></tr>`;
 
             document.getElementById('app-content').innerHTML = `
                 <div class="max-w-7xl mx-auto px-4 py-12">
@@ -477,7 +521,6 @@
                         <button onclick="router('admin/dashboard')" class="text-gray-400 hover:text-white text-sm">&larr; Dashboard</button>
                     </div>
 
-                    <!-- Create Event Form -->
                     <div class="bg-drift-card border border-drift-border p-6 rounded-lg mb-8">
                         <h3 class="font-heading font-bold text-xl text-white mb-4">Buat Event Baru</h3>
                         <form onsubmit="createEvent(event)" class="space-y-4">
@@ -493,7 +536,6 @@
                         </form>
                     </div>
 
-                    <!-- Event List Table -->
                     <div class="bg-drift-card border border-drift-border rounded-lg overflow-x-auto p-4">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -521,7 +563,7 @@
             const image_url = document.getElementById('ev-img').value || null;
 
             const { error } = await supabase.from('events').insert([{ name, date, time, mode, description, image_url, status: 'Upcoming' }]);
-            if (error) alert('Gagal: ' + error.message);
+            if (error) alert('Gagal: Pastikan tabel "events" sudah dibuat di Supabase.\n' + error.message);
             else { alert('Event berhasil dibuat!'); renderAdminEvents(); }
         }
 
@@ -534,9 +576,13 @@
 
         // --- 9. ADMIN GALLERY MANAGEMENT ---
         async function renderAdminGallery() {
-            const { data: gallery } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
+            let gallery = [];
+            try {
+                const res = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
+                if (res.data) gallery = res.data;
+            } catch(e) {}
 
-            let rows = gallery?.map(item => `
+            let rows = gallery.map(item => `
                 <tr class="border-b border-drift-border">
                     <td class="py-4 px-4"><img src="${item.image_url}" class="w-12 h-12 object-cover rounded"></td>
                     <td class="py-4 px-4 font-bold text-white">${item.title}</td>
@@ -545,7 +591,7 @@
                         <button onclick="deleteGallery('${item.id}')" class="bg-red-950 text-drift-red px-3 py-1 rounded text-xs font-bold hover:bg-drift-red hover:text-white transition">Hapus</button>
                     </td>
                 </tr>
-            `).join('') || `<tr><td colspan="4" class="text-center py-6 text-gray-400">Belum ada foto.</td></tr>`;
+            `).join('') || `<tr><td colspan="4" class="text-center py-6 text-gray-400">Belum ada foto atau tabel belum dibuat.</td></tr>`;
 
             document.getElementById('app-content').innerHTML = `
                 <div class="max-w-7xl mx-auto px-4 py-12">
@@ -557,9 +603,8 @@
                         <button onclick="router('admin/dashboard')" class="text-gray-400 hover:text-white text-sm">&larr; Dashboard</button>
                     </div>
 
-                    <!-- Upload Form -->
                     <div class="bg-drift-card border border-drift-border p-6 rounded-lg mb-8">
-                        <h3 class="font-heading font-bold text-xl text-white mb-4">Upload Foto Baru (Direct / HP Storage)</h3>
+                        <h3 class="font-heading font-bold text-xl text-white mb-4">Upload Foto Baru</h3>
                         <form onsubmit="uploadGallery(event)" class="space-y-4">
                             <input type="text" id="gal-title" placeholder="Judul Foto" required class="w-full bg-drift-dark border border-drift-border p-3 rounded text-white focus:border-drift-red outline-none">
                             <select id="gal-cat" class="w-full bg-drift-dark border border-drift-border p-3 rounded text-white focus:border-drift-red outline-none">
@@ -569,13 +614,12 @@
                                 <option value="Meet Up">Meet Up</option>
                                 <option value="Community">Community</option>
                             </select>
-                            <input type="text" id="gal-url" placeholder="Image URL (Atau link file gambar dari HP)" required class="w-full bg-drift-dark border border-drift-border p-3 rounded text-white focus:border-drift-red outline-none">
+                            <input type="text" id="gal-url" placeholder="Image URL (Link gambar)" required class="w-full bg-drift-dark border border-drift-border p-3 rounded text-white focus:border-drift-red outline-none">
                             <input type="text" id="gal-caption" placeholder="Caption / Keterangan" class="w-full bg-drift-dark border border-drift-border p-3 rounded text-white focus:border-drift-red outline-none">
                             <button type="submit" class="bg-drift-red hover:bg-drift-redhover text-white font-bold px-6 py-3 rounded transition">Upload Foto</button>
                         </form>
                     </div>
 
-                    <!-- Gallery Table -->
                     <div class="bg-drift-card border border-drift-border rounded-lg overflow-x-auto p-4">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -601,7 +645,7 @@
             const caption = document.getElementById('gal-caption').value;
 
             const { error } = await supabase.from('gallery').insert([{ title, category, image_url, caption }]);
-            if (error) alert('Gagal: ' + error.message);
+            if (error) alert('Gagal: Pastikan tabel "gallery" sudah dibuat di Supabase.\n' + error.message);
             else { alert('Foto berhasil diupload!'); renderAdminGallery(); }
         }
 
@@ -612,11 +656,17 @@
             }
         }
 
-        // --- 10. ADMIN SETTINGS (WHATSAPP & DISCORD) ---
+        // --- 10. ADMIN SETTINGS ---
         async function renderAdminSettings() {
-            const { data: settings } = await supabase.from('settings').select('*');
-            const waLink = settings?.find(s => s.key === 'whatsapp_link')?.value || '';
-            const dcLink = settings?.find(s => s.key === 'discord_link')?.value || '';
+            let waLink = 'https://chat.whatsapp.com';
+            let dcLink = 'https://discord.gg';
+            try {
+                const { data: settings } = await supabase.from('settings').select('*');
+                if (settings) {
+                    waLink = settings.find(s => s.key === 'whatsapp_link')?.value || waLink;
+                    dcLink = settings.find(s => s.key === 'discord_link')?.value || dcLink;
+                }
+            } catch(e) {}
 
             document.getElementById('app-content').innerHTML = `
                 <div class="max-w-2xl mx-auto px-4 py-12">
@@ -650,14 +700,16 @@
             const wa = document.getElementById('set-wa').value;
             const dc = document.getElementById('set-dc').value;
 
-            await supabase.from('settings').upsert({ key: 'whatsapp_link', value: wa });
-            await supabase.from('settings').upsert({ key: 'discord_link', value: dc });
-
-            alert('Link komunitas berhasil diperbarui!');
-            router('admin/dashboard');
+            try {
+                await supabase.from('settings').upsert({ key: 'whatsapp_link', value: wa });
+                await supabase.from('settings').upsert({ key: 'discord_link', value: dc });
+                alert('Link komunitas berhasil diperbarui!');
+                router('admin/dashboard');
+            } catch (error) {
+                alert('Gagal: Pastikan tabel "settings" sudah dibuat di Supabase.\n' + error.message);
+            }
         }
 
-        // Initialize App on Load
         window.addEventListener('DOMContentLoaded', () => {
             router('home');
         });
