@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CXDI — Carx Street Drift Indo</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        racing: {
+                            dark: '#0a0a0c',
+                            card: '#121318',
+                            border: '#222530',
+                            red: '#ef4444',
+                            redHover: '#dc2626'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        racing: ['Chakra Petch', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #0a0a0c; color: #f3f4f6; }
+        .font-racing { font-family: 'Chakra Petch', sans-serif; }
+        .hero-bg {
+            background: linear-gradient(to bottom, rgba(10,10,12,0.7), rgba(10,10,12,0.95)), url('https://images.unsplash.com/photo-1541899481282-d53bffe3c350?auto=format&fit=crop&q=80&w=1920') center/cover no-repeat;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0c; }
+        ::-webkit-scrollbar-thumb { background: #222530; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-red-500 selection:text-white">
+
+    <!-- NAVBAR -->
+    <nav class="sticky top-0 z-50 bg-racing-dark/90 backdrop-blur-md border-b border-racing-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                    <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center font-racing text-xl font-bold tracking-wider shadow-lg shadow-red-600/30">
+                        CX
+                    </div>
+                    <div>
+                        <span class="font-racing text-xl tracking-wider text-white">CXDI</span>
+                        <p class="text-[10px] text-zinc-400 tracking-widest uppercase">Carx Street Drift Indo</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <button onclick="switchTab('home')" class="nav-link text-sm font-medium transition hover:text-red-500 text-red-500" data-target="home">Home</button>
+                    <button onclick="switchTab('event')" class="nav-link text-sm font-medium transition hover:text-red-500 text-zinc-400" data-target="event">Event</button>
+                    <button onclick="switchTab('giveaway')" class="nav-link text-sm font-medium transition hover:text-red-500 text-zinc-400" data-target="giveaway">Giveaway</button>
+                    <button onclick="switchTab('gallery')" class="nav-link text-sm font-medium transition hover:text-red-500 text-zinc-400" data-target="gallery">Gallery</button>
+                    <button onclick="switchTab('community')" class="nav-link text-sm font-medium transition hover:text-red-500 text-zinc-400" data-target="community">Community</button>
+                    <button onclick="switchTab('admin-login')" class="flex items-center gap-2 px-4 py-2 bg-racing-card border border-racing-border text-zinc-300 rounded-lg hover:border-red-500 hover:text-white transition text-sm">
+                        <i data-lucide="shield" class="w-4 h-4 text-red-500"></i> Admin Login
+                    </button>
+                </div>
+
+                <!-- Mobile Hamburger Button -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="p-2 text-zinc-400 hover:text-white">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-racing-card border-b border-racing-border px-4 pt-2 pb-4 space-y-2">
+            <button onclick="switchTab('home'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white bg-racing-border/50">Home</button>
+            <button onclick="switchTab('event'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-zinc-300 hover:bg-racing-border">Event</button>
+            <button onclick="switchTab('giveaway'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-zinc-300 hover:bg-racing-border">Giveaway</button>
+            <button onclick="switchTab('gallery'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-zinc-300 hover:bg-racing-border">Gallery</button>
+            <button onclick="switchTab('community'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-zinc-300 hover:bg-racing-border">Community</button>
+            <button onclick="switchTab('admin-login'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-400 hover:bg-racing-border">Admin Login</button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow">
+
+        <!-- 1. HOME VIEW -->
+        <section id="view-home" class="view-section">
+            <!-- Hero -->
+            <div class="hero-bg min-h-[85vh] flex items-center justify-center text-center px-4 relative">
+                <div class="absolute inset-0 bg-gradient-to-t from-racing-dark via-transparent to-transparent"></div>
+                <div class="relative z-10 max-w-4xl mx-auto space-y-6">
+                    <span class="px-4 py-1.5 rounded-full bg-red-600/20 border border-red-500/40 text-red-400 text-xs font-semibold tracking-widest uppercase">
+                        Official CarX Street Community Indonesia
+                    </span>
+                    <h1 class="font-racing text-4xl sm:text-6xl md:text-7xl font-bold tracking-wider text-white">
+                        CXDI — CARX STREET DRIFT INDO
+                    </h1>
+                    <p class="text-zinc-400 text-lg sm:text-xl font-medium tracking-wide">
+                        "Drift • Event • Community"
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-4 pt-4">
+                        <a href="#" onclick="openWhatsApp()" class="flex items-center gap-2 px-6 py-3.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-lg shadow-green-600/30 transition transform hover:-translate-y-0.5">
+                            <i data-lucide="message-circle" class="w-5 h-5"></i> Join WhatsApp
+                        </a>
+                        <a href="#" onclick="openDiscord()" class="flex items-center gap-2 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition transform hover:-translate-y-0.5">
+                            <i data-lucide="disc" class="w-5 h-5"></i> Join Discord
+                        </a>
+                        <button onclick="switchTab('event')" class="flex items-center gap-2 px-6 py-3.5 bg-racing-card border border-racing-border hover:border-red-500 text-white font-semibold rounded-xl transition">
+                            <i data-lucide="calendar" class="w-5 h-5 text-red-500"></i> Lihat Event
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="bg-racing-card border-y border-racing-border py-12">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                    <div class="p-6 bg-racing-dark rounded-xl border border-racing-border">
+                        <h3 class="font-racing text-3xl sm:text-4xl font-bold text-red-500">1,450+</h3>
+                        <p class="text-zinc-400 text-sm mt-1">Jumlah Member</p>
+                    </div>
+                    <div class="p-6 bg-racing-dark rounded-xl border border-racing-border">
+                        <h3 class="font-racing text-3xl sm:text-4xl font-bold text-red-500">48</h3>
+                        <p class="text-zinc-400 text-sm mt-1">Jumlah Event</p>
+                    </div>
+                    <div class="p-6 bg-racing-dark rounded-xl border border-racing-border">
+                        <h3 class="font-racing text-3xl sm:text-4xl font-bold text-red-500">15</h3>
+                        <p class="text-zinc-400 text-sm mt-1">Jumlah Giveaway</p>
+                    </div>
+                    <div class="p-6 bg-racing-dark rounded-xl border border-racing-border">
+                        <h3 class="font-racing text-3xl sm:text-4xl font-bold text-red-500">320+</h3>
+                        <p class="text-zinc-400 text-sm mt-1">Foto Galeri</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-6">
+                        <span class="text-red-500 text-sm font-semibold uppercase tracking-widest">Tentang Kami</span>
+                        <h2 class="font-racing text-3xl sm:text-4xl font-bold text-white">Pusat Komunitas Drifter CarX Street Terbesar di Indonesia</h2>
+                        <p class="text-zinc-400 leading-relaxed">
+                            CXDI (Carx Street Drift Indo) adalah wadah resmi bagi para pecinta game CarX Street untuk menyalurkan hobi tandem drift, menyelenggarakan turnamen kompetitif, dan membangun persaudaraan antar drifter dari Sabang sampai Merauke.
+                        </p>
+                        <div class="grid grid-cols-2 gap-4 pt-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-red-600/20 text-red-500 flex items-center justify-center font-bold">✓</div>
+                                <span class="text-sm font-medium text-zinc-300">Room Kompetitif Rutin</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-red-600/20 text-red-500 flex items-center justify-center font-bold">✓</div>
+                                <span class="text-sm font-medium text-zinc-300">Setup & Tune Sharing</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative rounded-2xl overflow-hidden border border-racing-border shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&q=80&w=800" alt="Drift Car" class="w-full h-full object-cover transform hover:scale-105 transition duration-500">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. EVENT VIEW -->
+        <section id="view-event" class="view-section hidden py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-red-500 text-sm font-semibold uppercase tracking-widest">Jadwal Kompetisi</span>
+                        <h2 class="font-racing text-3xl font-bold text-white mt-1">CXDI Drift Events</h2>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-medium">Semua</button>
+                        <button class="px-4 py-2 rounded-lg bg-racing-card border border-racing-border text-zinc-400 hover:text-white text-sm font-medium">Upcoming</button>
+                        <button class="px-4 py-2 rounded-lg bg-racing-card border border-racing-border text-zinc-400 hover:text-white text-sm font-medium">Finished</button>
+                    </div>
+                </div>
+
+                <!-- Event Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="event-grid">
+                    <!-- Event Card 1 (Sample mandated) -->
+                    <div class="bg-racing-card border border-racing-border rounded-2xl overflow-hidden hover:border-red-500/50 transition group flex flex-col">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                            <span class="absolute top-4 right-4 px-3 py-1 bg-amber-500/20 border border-amber-500 text-amber-400 text-xs font-semibold rounded-full uppercase">Upcoming</span>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+                            <div class="space-y-2">
+                                <h3 class="font-racing text-xl font-bold text-white">CXDI Tandem Drift Night</h3>
+                                <p class="text-xs text-red-400 font-semibold uppercase">Mode: Tandem Drift</p>
+                                <p class="text-zinc-400 text-sm line-clamp-2">Adu skill tandem drift malam hari bersama member terbaik CXDI di map canyon CarX Street.</p>
+                            </div>
+                            <div class="space-y-2 pt-4 border-t border-racing-border text-sm text-zinc-300">
+                                <div class="flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-red-500"></i> 30 Agustus 2026</div>
+                                <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-red-500"></i> 20:00 WIB</div>
+                                <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-red-500"></i> Room: CXDI Official #1</div>
+                            </div>
+                            <button onclick="alert('Silakan bergabung ke grup WhatsApp atau Discord untuk mendaftar event ini!')" class="w-full py-2.5 bg-racing-dark hover:bg-red-600 text-white font-semibold rounded-xl border border-racing-border transition text-sm">
+                                Detail & Peraturan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. GIVEAWAY VIEW -->
+        <section id="view-giveaway" class="view-section hidden py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+                <div>
+                    <span class="text-red-500 text-sm font-semibold uppercase tracking-widest">Event Berhadiah</span>
+                    <h2 class="font-racing text-3xl font-bold text-white mt-1">CXDI Community Giveaway</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="giveaway-grid">
+                    <!-- Giveaway Card Sample -->
+                    <div class="bg-racing-card border border-racing-border rounded-2xl overflow-hidden p-6 space-y-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="px-3 py-1 bg-green-500/20 border border-green-500 text-green-400 text-xs font-semibold rounded-full uppercase">Aktif</span>
+                                <h3 class="font-racing text-2xl font-bold text-white mt-2">Gold & Car Tuning Package #12</h3>
+                            </div>
+                            <div class="w-16 h-16 rounded-xl bg-red-600/20 border border-red-500/40 flex items-center justify-center text-red-500 font-bold">
+                                <i data-lucide="gift" class="w-8 h-8"></i>
+                            </div>
+                        </div>
+                        <p class="text-zinc-400 text-sm">Menangkan In-game Gold CarX Street dan custom body kit eksklusif untuk 3 orang pemenang beruntung.</p>
+                        
+                        <!-- Countdown Timer -->
+                        <div class="bg-racing-dark p-4 rounded-xl border border-racing-border grid grid-cols-4 text-center">
+                            <div><span class="font-racing text-xl font-bold text-white">02</span><p class="text-[10px] text-zinc-500 uppercase">Hari</p></div>
+                            <div><span class="font-racing text-xl font-bold text-white">14</span><p class="text-[10px] text-zinc-500 uppercase">Jam</p></div>
+                            <div><span class="font-racing text-xl font-bold text-white">35</span><p class="text-[10px] text-zinc-500 uppercase">Menit</p></div>
+                            <div><span class="font-racing text-xl font-bold text-white">12</span><p class="text-[10px] text-zinc-500 uppercase">Detik</p></div>
+                        </div>
+
+                        <button onclick="openDiscord()" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition shadow-lg shadow-red-600/20">
+                            Ikuti Giveaway di Discord
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. GALLERY VIEW -->
+        <section id="view-gallery" class="view-section hidden py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-red-500 text-sm font-semibold uppercase tracking-widest">Koleksi Momen</span>
+                        <h2 class="font-racing text-3xl font-bold text-white mt-1">CXDI Gallery</h2>
+                    </div>
+                    <!-- Categories -->
+                    <div class="flex flex-wrap gap-2">
+                        <button class="px-3 py-1.5 rounded-lg bg-red-600 text-white text-xs font-medium">Semua</button>
+                        <button class="px-3 py-1.5 rounded-lg bg-racing-card border border-racing-border text-zinc-400 hover:text-white text-xs font-medium">Event</button>
+                        <button class="px-3 py-1.5 rounded-lg bg-racing-card border border-racing-border text-zinc-400 hover:text-white text-xs font-medium">Tandem Drift</button>
+                        <button class="px-3 py-1.5 rounded-lg bg-racing-card border border-racing-border text-zinc-400 hover:text-white text-xs font-medium">Solo Drift</button>
+                        <button class="px-3 py-1.5 rounded-lg bg-racing-card border border-racing-border text-zinc-400 hover:text-white text-xs font-medium">Meet Up</button>
+                    </div>
+                </div>
+
+                <!-- Gallery Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div class="relative rounded-xl overflow-hidden border border-racing-border group h-64 cursor-pointer">
+                        <img src="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <div class="absolute inset-0 bg-gradient-to-t from-racing-dark/80 via-transparent opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
+                            <span class="text-xs text-red-400 font-semibold uppercase">Tandem Drift</span>
+                            <h4 class="font-bold text-white text-sm">Night Session at Canyon</h4>
+                        </div>
+                    </div>
+                    <div class="relative rounded-xl overflow-hidden border border-racing-border group h-64 cursor-pointer">
+                        <img src="https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <div class="absolute inset-0 bg-gradient-to-t from-racing-dark/80 via-transparent opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
+                            <span class="text-xs text-red-400 font-semibold uppercase">Meet Up</span>
+                            <h4 class="font-bold text-white text-sm">City Center Gathering</h4>
+                        </div>
+                    </div>
+                    <div class="relative rounded-xl overflow-hidden border border-racing-border group h-64 cursor-pointer">
+                        <img src="https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <div class="absolute inset-0 bg-gradient-to-t from-racing-dark/80 via-transparent opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
+                            <span class="text-xs text-red-400 font-semibold uppercase">Solo Drift</span>
+                            <h4 class="font-bold text-white text-sm">JDM Apex Attack</h4>
+                        </div>
+                    </div>
+                    <div class="relative rounded-xl overflow-hidden border border-racing-border group h-64 cursor-pointer">
+                        <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <div class="absolute inset-0 bg-gradient-to-t from-racing-dark/80 via-transparent opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
+                            <span class="text-xs text-red-400 font-semibold uppercase">Event</span>
+                            <h4 class="font-bold text-white text-sm">Championship Podium</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. COMMUNITY VIEW -->
+        <section id="view-community" class="view-section hidden py-16">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                <div class="text-center space-y-2">
+                    <span class="text-red-500 text-sm font-semibold uppercase tracking-widest">Gabung Bersama Kami</span>
+                    <h2 class="font-racing text-3xl sm:text-4xl font-bold text-white">CXDI Community Hub</h2>
+                    <p class="text-zinc-400 text-sm">Pilih platform favoritmu untuk terhubung dengan ratusan drifter aktif lainnya.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- WhatsApp Box -->
+                    <div class="bg-racing-card border border-racing-border rounded-2xl p-8 text-center space-y-6 hover:border-green-500/50 transition">
+                        <div class="w-16 h-16 bg-green-600/20 text-green-500 rounded-2xl flex items-center justify-center mx-auto border border-green-500/30">
+                            <i data-lucide="message-circle" class="w-8 h-8"></i>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="font-racing text-2xl font-bold text-white">WhatsApp Group</h3>
+                            <p class="text-zinc-400 text-sm">Gabung Grup WhatsApp CXDI untuk info kilat, diskusi harian, dan mabar spontan.</p>
+                        </div>
+                        <a href="#" onclick="openWhatsApp()" class="inline-flex w-full items-center justify-center gap-2 py-3.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-lg shadow-green-600/20 transition">
+                            JOIN WHATSAPP <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+
+                    <!-- Discord Box -->
+                    <div class="bg-racing-card border border-racing-border rounded-2xl p-8 text-center space-y-6 hover:border-indigo-500/50 transition">
+                        <div class="w-16 h-16 bg-indigo-600/20 text-indigo-500 rounded-2xl flex items-center justify-center mx-auto border border-indigo-500/30">
+                            <i data-lucide="disc" class="w-8 h-8"></i>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="font-racing text-2xl font-bold text-white">Discord Server</h3>
+                            <p class="text-zinc-400 text-sm">Gabung Server Discord CXDI untuk voice chat saat tandem, turnamen resmi, dan berbagi setup mobil.</p>
+                        </div>
+                        <a href="#" onclick="openDiscord()" class="inline-flex w-full items-center justify-center gap-2 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/20 transition">
+                            JOIN DISCORD <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. ADMIN LOGIN VIEW -->
+        <section id="view-admin-login" class="view-section hidden py-24">
+            <div class="max-w-md mx-auto px-4">
+                <div class="bg-racing-card border border-racing-border rounded-2xl p-8 space-y-6 shadow-2xl">
+                    <div class="text-center space-y-2">
+                        <div class="w-12 h-12 bg-red-600/20 text-red-500 rounded-xl flex items-center justify-center mx-auto border border-red-500/30">
+                            <i data-lucide="lock" class="w-6 h-6"></i>
+                        </div>
+                        <h2 class="font-racing text-2xl font-bold text-white">Admin Authentication</h2>
+                        <p class="text-zinc-400 text-xs">Hanya untuk Owner & Admin resmi CXDI.</p>
+                    </div>
+
+                    <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-zinc-300 uppercase">Email Administrator</label>
+                            <input type="email" id="admin-email" required placeholder="admin@cxdi.com" class="w-full px-4 py-3 bg-racing-dark border border-racing-border rounded-xl text-white text-sm focus:outline-none focus:border-red-500">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-zinc-300 uppercase">Password</label>
+                            <input type="password" id="admin-password" required placeholder="••••••••" class="w-full px-4 py-3 bg-racing-dark border border-racing-border rounded-xl text-white text-sm focus:outline-none focus:border-red-500">
+                        </div>
+                        <button type="submit" class="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition shadow-lg shadow-red-600/20">
+                            Login Dashboard
+                        </button>
+                    </form>
+                    <div class="text-center">
+                        <button onclick="switchTab('home')" class="text-xs text-zinc-500 hover:text-zinc-300 transition">← Kembali ke Beranda</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. ADMIN DASHBOARD VIEW (Protected) -->
+        <section id="view-admin-dashboard" class="view-section hidden py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+                <!-- Top Dashboard Bar -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-racing-card border border-racing-border p-6 rounded-2xl">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-red-600 text-white flex items-center justify-center font-bold font-racing text-xl">
+                            AD
+                        </div>
+                        <div>
+                            <h2 class="font-racing text-xl font-bold text-white">Dashboard Admin CXDI</h2>
+                            <p class="text-xs text-zinc-400">Login sebagai: <span id="logged-admin-email" class="text-red-400">admin@cxdi.com</span></p>
+                        </div>
+                    </div>
+                    <button onclick="handleLogout()" class="flex items-center gap-2 px-4 py-2 bg-racing-dark border border-racing-border text-red-400 hover:bg-red-600 hover:text-white rounded-xl transition text-sm">
+                        <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+                    </button>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="p-4 bg-racing-card rounded-xl border border-racing-border">
+                        <span class="text-xs text-zinc-400">Total Event</span>
+                        <h4 class="font-racing text-2xl font-bold text-white mt-1">48</h4>
+                    </div>
+                    <div class="p-4 bg-racing-card rounded-xl border border-racing-border">
+                        <span class="text-xs text-zinc-400">Event Aktif</span>
+                        <h4 class="font-racing text-2xl font-bold text-red-500 mt-1">1</h4>
+                    </div>
+                    <div class="p-4 bg-racing-card rounded-xl border border-racing-border">
+                        <span class="text-xs text-zinc-400">Total Foto</span>
+                        <h4 class="font-racing text-2xl font-bold text-white mt-1">320</h4>
+                    </div>
+                    <div class="p-4 bg-racing-card rounded-xl border border-racing-border">
+                        <span class="text-xs text-zinc-400">Giveaway</span>
+                        <h4 class="font-racing text-2xl font-bold text-white mt-1">15</h4>
+                    </div>
+                    <div class="p-4 bg-racing-card rounded-xl border border-racing-border col-span-2 md:col-span-1">
+                        <span class="text-xs text-zinc-400">Member</span>
+                        <h4 class="font-racing text-2xl font-bold text-white mt-1">1,450</h4>
+                    </div>
+                </div>
+
+                <!-- Management Panels -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Column 1 & 2: Quick Form Actions (Mobile friendly upload & create) -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <!-- Create Event Card -->
+                        <div class="bg-racing-card border border-racing-border rounded-2xl p-6 space-y-6">
+                            <div class="flex items-center gap-3 border-b border-racing-border pb-4">
+                                <i data-lucide="calendar-plus" class="w-5 h-5 text-red-500"></i>
+                                <h3 class="font-racing text-lg font-bold text-white">Buat / Kelola Event Baru</h3>
+                            </div>
+                            <form onsubmit="handleCreateEvent(event)" class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="space-y-1">
+                                        <label class="text-xs text-zinc-400 font-semibold">Nama Event</label>
+                                        <input type="text" id="ev-name" required placeholder="Contoh: CXDI Battle Night" class="w-full px-3.5 py-2.5 bg-racing-dark border border-racing-border rounded-xl text-sm text-white focus:border-red-500">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-xs text-zinc-400 font-semibold">Tanggal</label>
+                                        <input type="date" id="ev-date" required class="w-full px-3.5 py-2.5 bg-racing-dark border border-racing-border rounded-xl text-sm text-white focus:border-red-500">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="space-y-1">
+                                        <label class="text-xs text-zinc-400 font-semibold">Jam</label>
+                                        <input type="text" id="ev-time" required placeholder="20:00 WIB" class="w-full px-3.5 py-2.5 bg-racing-dark border border-racing-border rounded-xl text-sm text-white focus:border-red-500">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-xs text-zinc-400 font-semibold">Jenis / Mode</label>
+                                        <input type="text" id="ev-mode" required placeholder="Tandem Drift" class="w-full px-3.5 py-2.5 bg-racing-dark border border-racing-border rounded-xl text-sm text-white focus:border-red-500">
+                                    </div>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs text-zinc-400 font-semibold">Upload Poster Event (HP/PC)</label>
+                                    <input type="file" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700 cursor-pointer">
+                                </div>
+                                <button type="submit" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm rounded-xl transition">
+                                    Simpan & Publikasikan Event
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Upload Gallery Card -->
+                        <div class="bg-racing-card border border-racing-border rounded-2xl p-6 space-y-6">
+                            <div class="flex items-center gap-3 border-b border-racing-border pb-4">
+                                <i data-lucide="image-plus" class="w-5 h-5 text-red-500"></i>
+                                <h3 class="font-racing text-lg font-bold text-white">Upload Foto Galeri</h3>
+                            </div>
+                            <form onsubmit="handleUploadGallery(event)" class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="space-y-1">
+                                        <label class="text-xs text-zinc-400 font-semibold">Judul Foto</label>
+                                        <input type="text" required placeholder="Contoh: Podium 1 Canyon" class="w-full px-3.5 py-2.5 bg-racing-dark border border-racing-border rounded-xl text-sm text-white focus:border-red-500">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-xs text-zinc-400 font-semibold">Kategori</label>
+                                        <select class="w-full px-3.5 py-2.5 bg-racing-dark border border-racing-border rounded-xl text-sm text-white focus:border-red-500">
+                                            <option>Event</option>
+                                            <option>Tandem Drift</option>
+                                            <option>Solo Drift</option>
+                                            <option>Meet Up</option>
+                                            <option>Giveaway</option>
+                                            <option>Community</option>
+                                            <option>Random</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs text-zinc-400 font-semibold">Pilih Gambar (Maks 5MB)</label>
+                                    <input type="file" accept="image/*" required class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700 cursor-pointer">
+                                </div>
+                                <button type="submit" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm rounded-xl transition">
+                                    Upload Foto
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Website Settings (WhatsApp & Discord Link Manager) -->
+                    <div class="space-y-8">
+                        <div class="bg-racing-card border border-racing-border rounded-2xl p-6 space-y-6">
+                            <div class="flex items-center gap-3 border-b border-racing-border pb-4">
+                                <i data-lucide="settings" class="w-5 h-5 text-red-500"></i>
+                                <h3 class="font-racing text-lg font-bold text-white">Pengaturan Link Komunitas</h3>
+                            </div>
+                            <form onsubmit="handleSaveSettings(event)" class="space-y-4">
+                                <div class="space-y-1">
+                                    <label class="text-xs text-zinc-400 font-semibold">Link WhatsApp Group</label>
+                                    <input type="url" id="setting-wa" value="https://chat.whatsapp.com/sample-cxdi" required class="w-full px-3.5 py-2.5 bg-racing-dark border border-racing-border rounded-xl text-sm text-white focus:border-red-500">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs text-zinc-400 font-semibold">Link Server Discord</label>
+                                    <input type="url" id="setting-discord" value="https://discord.gg/sample-cxdi" required class="w-full px-3.5 py-2.5 bg-racing-dark border border-racing-border rounded-xl text-sm text-white focus:border-red-500">
+                                </div>
+                                <button type="submit" class="w-full py-3 bg-racing-dark hover:bg-red-600 border border-racing-border text-white font-semibold text-sm rounded-xl transition">
+                                    Simpan Perubahan Link
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-racing-card border-t border-racing-border py-12 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center font-racing font-bold text-white">
+                    CX
+                </div>
+                <div>
+                    <span class="font-racing tracking-wider text-white">CXDI — Carx Street Drift Indo</span>
+                    <p class="text-xs text-zinc-500">© 2026 CXDI Community. All rights reserved.</p>
+                </div>
+            </div>
+            <div class="flex space-x-6 text-sm text-zinc-400">
+                <button onclick="switchTab('home')" class="hover:text-red-500">Home</button>
+                <button onclick="switchTab('event')" class="hover:text-red-500">Event</button>
+                <button onclick="switchTab('giveaway')" class="hover:text-red-500">Giveaway</button>
+                <button onclick="switchTab('gallery')" class="hover:text-red-500">Gallery</button>
+                <button onclick="switchTab('community')" class="hover:text-red-500">Community</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Inisialisasi Lucide Icons
+        lucide.createIcons();
+
+        // State Global Link Komunitas
+        let communityLinks = {
+            whatsapp: "https://chat.whatsapp.com/sample-cxdi",
+            discord: "https://discord.gg/sample-cxdi"
+        };
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            // Sembunyikan semua section
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.add('hidden');
+            });
+
+            // Tampilkan section yang dipilih
+            const target = document.getElementById(`view-${tabId}`);
+            if (target) {
+                target.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Update active state nav
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if(link.getAttribute('data-target') === tabId) {
+                    link.classList.add('text-red-500');
+                    link.classList.remove('text-zinc-400');
+                } else {
+                    link.classList.remove('text-red-500');
+                    link.classList.add('text-zinc-400');
+                }
+            });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // WhatsApp & Discord Redirect with Dynamic Links
+        function openWhatsApp() {
+            window.open(communityLinks.whatsapp, '_blank');
+        }
+
+        function openDiscord() {
+            window.open(communityLinks.discord, '_blank');
+        }
+
+        // Admin Authentication Simulation
+        let isAdminLoggedIn = false;
+
+        function handleAdminLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('admin-email').value;
+            const pass = document.getElementById('admin-password').value;
+
+            // Simple mock validation (di production menggunakan backend aman & hashing password)
+            if (email && pass.length >= 6) {
+                isAdminLoggedIn = true;
+                document.getElementById('logged-admin-email').innerText = email;
+                switchTab('admin-dashboard');
+                alert('Login Berhasil! Selamat datang di Panel Admin CXDI.');
+            } else {
+                alert('Login gagal. Periksa kembali email dan password Anda.');
+            }
+        }
+
+        function handleLogout() {
+            isAdminLoggedIn = false;
+            switchTab('home');
+            alert('Anda telah keluar dari dashboard admin.');
+        }
+
+        // Admin Actions
+        function handleCreateEvent(event) {
+            event.preventDefault();
+            alert('Event baru berhasil dibuat dan langsung dipublikasikan ke halaman utama!');
+            event.target.reset();
+        }
+
+        function handleUploadGallery(event) {
+            event.preventDefault();
+            alert('Foto berhasil di-upload ke galeri CXDI!');
+            event.target.reset();
+        }
+
+        function handleSaveSettings(event) {
+            event.preventDefault();
+            communityLinks.whatsapp = document.getElementById('setting-wa').value;
+            communityLinks.discord = document.getElementById('setting-discord').value;
+            alert('Link WhatsApp dan Discord berhasil diperbarui secara real-time!');
+        }
+    </script>
+</body>
+</html>
