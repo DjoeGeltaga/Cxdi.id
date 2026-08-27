@@ -1,3 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CXDI Admin Cloud Panel</title>
+  <style>
+    body { background-color: #0d0e12; color: white; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .container { width: 100%; max-width: 600px; }
+    .card { background: #16181f; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2a2d37; }
+    h2 { color: #e11d48; margin-top: 0; font-size: 20px; }
+    h3 { font-size: 16px; margin-bottom: 15px; border-bottom: 1px solid #2a2d37; padding-bottom: 8px; }
+    label { display: block; font-size: 13px; color: #9ca3af; margin-bottom: 5px; }
+    input, textarea { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 6px; border: 1px solid #2a2d37; background: #0d0e12; color: white; box-sizing: border-box; font-size: 14px; }
+    textarea { resize: vertical; height: 80px; }
+    button { width: 100%; padding: 12px; border-radius: 6px; border: none; background: #e11d48; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
+    button:hover { background: #be123c; }
+    .btn-logout { background: #374151; margin-top: 10px; width: auto; padding: 8px 15px; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2>☁️ CXDI Cloud Admin Panel</h2>
+      <button onclick="handleLogout()" class="btn-logout">Logout</button>
+    </div>
+
+    <div class="card">
+      <h3>🔗 Link Komunitas & Sosmed</h3>
+      <form onsubmit="saveConfig(event, 'links')">
+        <label>Link WhatsApp</label>
+        <input type="url" id="waLink" required>
+        <label>Link Discord</label>
+        <input type="url" id="discordLink" required>
+        <button type="submit">Simpan Link</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>🏁 Event & Pendaftaran</h3>
+      <form onsubmit="saveConfig(event, 'event')">
+        <label>URL Poster Foto Event</label>
+        <input type="url" id="evImg" placeholder="Link gambar (Imgur/GitHub/dll)" required>
+        <label>Nama Event</label>
+        <input type="text" id="evName" required>
+        <label>Tanggal & Waktu</label>
+        <input type="text" id="evDate" required>
+        <label>Class</label>
+        <input type="text" id="evClass" required>
+        <label>Hadiah</label>
+        <input type="text" id="evPrize" required>
+        <label>Rules Event</label>
+        <textarea id="evRules" required></textarea>
+        <label>Link Pendaftaran</label>
+        <input type="url" id="evReg" required>
+        <button type="submit">Publikasikan Event</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>📅 Jadwal Pertandingan</h3>
+      <form onsubmit="saveConfig(event, 'schedule')">
+        <textarea id="schedDesc" required></textarea>
+        <button type="submit">Simpan Jadwal</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>📜 Rules Grup</h3>
+      <form onsubmit="saveConfig(event, 'rules')">
+        <textarea id="groupRules" required></textarea>
+        <button type="submit">Simpan Rules</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>🤝 Sponsor</h3>
+      <form onsubmit="saveConfig(event, 'sponsors')">
+        <textarea id="sponsorList" required></textarea>
+        <button type="submit">Simpan Sponsor</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Memuat library Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://vemwhklbeknxrdcwyirxe.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlbXdoa2xiZWtueGRjd3lpcnhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4MTY1MzEsImV4cCI6MjEwMzM5MjUzMX0.BnyX9No8YEYCNIvRR2RzsoaslOb8o2Ka4V_YHLboWYg';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    if (!localStorage.getItem('sb_access_token')) {
+      alert("Sesi habis. Silakan login ulang.");
+      window.location.href = "admin.html";
+    }
+
+    async function loadData() {
+      const { data, error } = await supabase.from('site_config').select('*');
+      if (data) {
+        data.forEach(row => {
+          if (row.key === 'wa') document.getElementById('waLink').value = row.value;
+          if (row.key === 'discord') document.getElementById('discordLink').value = row.value;
+          if (row.key === 'schedule') document.getElementById('schedDesc').value = row.value;
+          if (row.key === 'rules') document.getElementById('groupRules').value = row.value;
+          if (row.key === 'sponsors') document.getElementById('sponsorList').value = row.value;
+          if (row.key === 'event') {
+            try {
+              const ev = JSON.parse(row.value);
+              document.getElementById('evImg').value = ev.img || '';
+              document.getElementById('evName').value = ev.name || '';
+              document.getElementById('evDate').value = ev.date || '';
+              document.getElementById('evClass').value = ev.cls || '';
+              document.getElementById('evPrize').value = ev.prize || '';
+              document.getElementById('evRules').value = ev.rules || '';
+              document.getElementById('evReg').value = ev.reg || '';
+            } catch (err) {
+              console.error("Format JSON event salah");
+            }
+          }
+        });
+      }
+    }
+
+    window.onload = loadData;
+
     async function saveConfig(e, type) {
       e.preventDefault();
       try {
@@ -43,3 +169,11 @@
         alert("Error tertangkap: " + err.message);
       }
     }
+
+    function handleLogout() {
+      localStorage.removeItem('sb_access_token');
+      window.location.href = "admin.html";
+    }
+  </script>
+</body>
+</html>
