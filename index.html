@@ -91,7 +91,6 @@
 
     <!-- MAIN CONTENT CONTAINER -->
     <main id="app-content" class="flex-grow">
-        <!-- Default Loading State -->
         <div class="flex items-center justify-center py-32 text-gray-400">
             <i class="fa-solid fa-circle-notch fa-spin text-2xl mr-3 text-drift-red"></i> Memuat CXDI...
         </div>
@@ -109,45 +108,52 @@
         </div>
     </footer>
 
-    <!-- APP SCRIPT & SUPABASE CONFIG -->
+    <!-- APP SCRIPT -->
     <script>
-        const SUPABASE_URL = 'https://vemwhklbeknxdcwyirxe.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_BunHy3v0BcX54Z_R9OBpkw__e03uXAH';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabase = null;
+        try {
+            if (window.supabase) {
+                supabase = window.supabase.createClient(
+                    'https://vemwhklbeknxdcwyirxe.supabase.co',
+                    'sb_publishable_BunHy3v0BcX54Z_R9OBpkw__e03uXAH'
+                );
+            }
+        } catch (e) {
+            console.warn('Supabase initialization warning:', e);
+        }
 
         let currentRoute = 'home';
-        let currentUser = null;
 
         async function router(route) {
             currentRoute = route;
-            const content = document.getElementById('app-content');
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             try {
-                const { data: { session } } = await supabase.auth.getSession();
-                currentUser = session ? session.user : null;
-            } catch (e) {
-                currentUser = null;
-            }
-
-            if (route.startsWith('admin/') && !currentUser) {
-                renderAdminLogin();
-                return;
-            }
-
-            switch(route) {
-                case 'home': await renderHome(); break;
-                case 'events': await renderEvents(); break;
-                case 'giveaway': renderGiveaway(); break;
-                case 'gallery': await renderGallery(); break;
-                case 'community': await renderCommunity(); break;
-                case 'admin/login': renderAdminLogin(); break;
-                case 'admin/dashboard': await renderAdminDashboard(); break;
-                case 'admin/events': await renderAdminEvents(); break;
-                case 'admin/giveaways': renderAdminGiveaways(); break;
-                case 'admin/gallery': await renderAdminGallery(); break;
-                case 'admin/settings': await renderAdminSettings(); break;
-                default: await renderHome();
+                switch(route) {
+                    case 'home': await renderHome(); break;
+                    case 'events': await renderEvents(); break;
+                    case 'giveaway': renderGiveaway(); break;
+                    case 'gallery': await renderGallery(); break;
+                    case 'community': renderCommunity(); break;
+                    case 'admin/login': renderAdminLogin(); break;
+                    case 'admin/dashboard': await renderAdminDashboard(); break;
+                    case 'admin/events': await renderAdminEvents(); break;
+                    case 'admin/gallery': await renderAdminGallery(); break;
+                    case 'admin/settings': await renderAdminSettings(); break;
+                    default: await renderHome();
+                }
+            } catch (err) {
+                console.error("Router Error:", err);
+                document.getElementById('app-content').innerHTML = `
+                    <div class="max-w-md mx-auto px-4 py-20 text-center">
+                        <div class="bg-drift-card border border-drift-border p-8 rounded-lg">
+                            <i class="fa-solid fa-triangle-exclamation text-4xl text-drift-red mb-4"></i>
+                            <h3 class="font-heading font-bold text-xl text-white mb-2">Gagal Memuat Halaman</h3>
+                            <p class="text-gray-400 text-sm mb-6">Periksa koneksi internet Anda atau nonaktifkan perisai pemblokir iklan (Brave Shields) untuk situs ini.</p>
+                            <button onclick="router('home')" class="bg-drift-red text-white font-bold px-6 py-2 rounded">Muat Ulang</button>
+                        </div>
+                    </div>
+                `;
             }
         }
 
@@ -157,6 +163,11 @@
         }
 
         async function checkAdminAccess() {
+            if (!supabase) {
+                alert('Koneksi Supabase tidak aktif / terblokir browser.');
+                router('admin/login');
+                return;
+            }
             try {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (session) {
@@ -169,30 +180,29 @@
             }
         }
 
-        // --- 1. HOME VIEW ---
+        // --- 1. HOME ---
         async function renderHome() {
-            let eventCount = 0;
-            let galleryCount = 0;
+            let eventCount = 0, galleryCount = 0;
             let waLink = 'https://chat.whatsapp.com';
             let dcLink = 'https://discord.gg';
 
-            try {
-                const evRes = await supabase.from('events').select('*', { count: 'exact', head: true });
-                if (evRes.count !== null) eventCount = evRes.count;
-            } catch (e) {}
-
-            try {
-                const galRes = await supabase.from('gallery').select('*', { count: 'exact', head: true });
-                if (galRes.count !== null) galleryCount = galRes.count;
-            } catch (e) {}
-
-            try {
-                const { data: settings } = await supabase.from('settings').select('*');
-                if (settings) {
-                    waLink = settings.find(s => s.key === 'whatsapp_link')?.value || waLink;
-                    dcLink = settings.find(s => s.key === 'discord_link')?.value || dcLink;
-                }
-            } catch (e) {}
+            if (supabase) {
+                try {
+                    const evRes = await supabase.from('events').select('*', { count: 'exact', head: true });
+                    if (evRes.count !== null) eventCount = evRes.count;
+                } catch(e) {}
+                try {
+                    const galRes = await supabase.from('gallery').select('*', { count: 'exact', head: true });
+                    if (galRes.count !== null) galleryCount = galRes.count;
+                } catch(e) {}
+                try {
+                    const { data: settings } = await supabase.from('settings').select('*');
+                    if (settings) {
+                        waLink = settings.find(s => s.key === 'whatsapp_link')?.value || waLink;
+                        dcLink = settings.find(s => s.key === 'discord_link')?.value || dcLink;
+                    }
+                } catch(e) {}
+            }
 
             document.getElementById('app-content').innerHTML = `
                 <div class="relative bg-gradient-to-b from-black/80 to-drift-dark py-20 lg:py-32 border-b border-drift-border overflow-hidden">
@@ -257,13 +267,15 @@
             `;
         }
 
-        // --- 2. EVENTS VIEW ---
+        // --- 2. EVENTS ---
         async function renderEvents() {
             let events = [];
-            try {
-                const res = await supabase.from('events').select('*').order('date', { ascending: true });
-                if (res.data) events = res.data;
-            } catch (e) {}
+            if (supabase) {
+                try {
+                    const res = await supabase.from('events').select('*').order('date', { ascending: true });
+                    if (res.data) events = res.data;
+                } catch(e) {}
+            }
 
             let eventsHtml = '';
             if (!events || events.length === 0) {
@@ -285,13 +297,10 @@
                                 </div>
                                 <h3 class="font-heading font-bold text-2xl text-white mb-2">${ev.name}</h3>
                                 <p class="text-gray-400 text-sm mb-4 line-clamp-2">${ev.description || 'Tidak ada deskripsi.'}</p>
-                                <div class="space-y-1 text-xs text-gray-400 border-t border-drift-border pt-4">
-                                    <div><strong class="text-gray-200">Mode:</strong> ${ev.mode}</div>
-                                </div>
                             </div>
                         </div>
                         <div class="p-6 pt-0">
-                            <button onclick="alert('Silakan bergabung ke grup WhatsApp atau Discord CXDI untuk mendaftar event!')" class="w-full bg-drift-border hover:bg-drift-red text-white py-2 rounded font-bold text-sm transition">
+                            <button onclick="alert('Silakan bergabung ke grup WhatsApp atau Discord CXDI!')" class="w-full bg-drift-border hover:bg-drift-red text-white py-2 rounded font-bold text-sm transition">
                                 Ikuti Event
                             </button>
                         </div>
@@ -305,14 +314,12 @@
                         <span class="text-drift-red font-bold text-xs tracking-widest uppercase">Jadwal Kompetisi</span>
                         <h1 class="font-heading font-bold text-4xl text-white">CXDI Drift Events</h1>
                     </div>
-                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        ${eventsHtml}
-                    </div>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">${eventsHtml}</div>
                 </div>
             `;
         }
 
-        // --- 3. GIVEAWAY VIEW ---
+        // --- 3. GIVEAWAY ---
         function renderGiveaway() {
             document.getElementById('app-content').innerHTML = `
                 <div class="max-w-7xl mx-auto px-4 py-12 text-center">
@@ -327,13 +334,15 @@
             `;
         }
 
-        // --- 4. GALLERY VIEW ---
+        // --- 4. GALLERY ---
         async function renderGallery() {
             let gallery = [];
-            try {
-                const res = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
-                if (res.data) gallery = res.data;
-            } catch (e) {}
+            if (supabase) {
+                try {
+                    const res = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
+                    if (res.data) gallery = res.data;
+                } catch(e) {}
+            }
 
             let galleryHtml = '';
             if (!gallery || gallery.length === 0) {
@@ -359,24 +368,24 @@
                         <span class="text-drift-red font-bold text-xs tracking-widest uppercase">Media Arsip</span>
                         <h1 class="font-heading font-bold text-4xl text-white">CXDI Gallery</h1>
                     </div>
-                    <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-                        ${galleryHtml}
-                    </div>
+                    <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">${galleryHtml}</div>
                 </div>
             `;
         }
 
-        // --- 5. COMMUNITY VIEW ---
+        // --- 5. COMMUNITY ---
         async function renderCommunity() {
             let waLink = 'https://chat.whatsapp.com';
             let dcLink = 'https://discord.gg';
-            try {
-                const { data: settings } = await supabase.from('settings').select('*');
-                if (settings) {
-                    waLink = settings.find(s => s.key === 'whatsapp_link')?.value || waLink;
-                    dcLink = settings.find(s => s.key === 'discord_link')?.value || dcLink;
-                }
-            } catch (e) {}
+            if (supabase) {
+                try {
+                    const { data: settings } = await supabase.from('settings').select('*');
+                    if (settings) {
+                        waLink = settings.find(s => s.key === 'whatsapp_link')?.value || waLink;
+                        dcLink = settings.find(s => s.key === 'discord_link')?.value || dcLink;
+                    }
+                } catch(e) {}
+            }
 
             document.getElementById('app-content').innerHTML = `
                 <div class="max-w-4xl mx-auto px-4 py-16 text-center">
@@ -430,6 +439,10 @@
 
         async function handleLogin(e) {
             e.preventDefault();
+            if (!supabase) {
+                alert('Supabase tidak terhubung.');
+                return;
+            }
             const email = document.getElementById('admin-email').value;
             const password = document.getElementById('admin-pass').value;
 
@@ -443,16 +456,17 @@
 
         // --- 7. ADMIN DASHBOARD ---
         async function renderAdminDashboard() {
-            let eventCount = 0;
-            let galleryCount = 0;
-            try {
-                const evRes = await supabase.from('events').select('*', { count: 'exact', head: true });
-                if (evRes.count !== null) eventCount = evRes.count;
-            } catch(e) {}
-            try {
-                const galRes = await supabase.from('gallery').select('*', { count: 'exact', head: true });
-                if (galRes.count !== null) galleryCount = galRes.count;
-            } catch(e) {}
+            let eventCount = 0, galleryCount = 0;
+            if (supabase) {
+                try {
+                    const evRes = await supabase.from('events').select('*', { count: 'exact', head: true });
+                    if (evRes.count !== null) eventCount = evRes.count;
+                } catch(e) {}
+                try {
+                    const galRes = await supabase.from('gallery').select('*', { count: 'exact', head: true });
+                    if (galRes.count !== null) galleryCount = galRes.count;
+                } catch(e) {}
+            }
 
             document.getElementById('app-content').innerHTML = `
                 <div class="max-w-7xl mx-auto px-4 py-12">
@@ -480,7 +494,7 @@
                         </div>
                         <div class="bg-drift-card border border-drift-border p-6 rounded-lg">
                             <span class="text-gray-400 text-xs font-bold uppercase tracking-wider">Status Server</span>
-                            <span class="block font-heading font-bold text-2xl text-emerald-500 mt-2">Connected & Secured</span>
+                            <span class="block font-heading font-bold text-2xl text-emerald-500 mt-2">${supabase ? 'Connected' : 'Offline Mode'}</span>
                         </div>
                     </div>
                 </div>
@@ -488,17 +502,19 @@
         }
 
         async function handleLogout() {
-            await supabase.auth.signOut();
+            if (supabase) await supabase.auth.signOut();
             router('home');
         }
 
-        // --- 8. ADMIN EVENTS MANAGEMENT ---
+        // --- 8. ADMIN EVENTS ---
         async function renderAdminEvents() {
             let events = [];
-            try {
-                const res = await supabase.from('events').select('*').order('date', { ascending: true });
-                if (res.data) events = res.data;
-            } catch(e) {}
+            if (supabase) {
+                try {
+                    const res = await supabase.from('events').select('*').order('date', { ascending: true });
+                    if (res.data) events = res.data;
+                } catch(e) {}
+            }
 
             let rows = events.map(ev => `
                 <tr class="border-b border-drift-border">
@@ -509,7 +525,7 @@
                         <button onclick="deleteEvent('${ev.id}')" class="bg-red-950 text-drift-red px-3 py-1 rounded text-xs font-bold hover:bg-drift-red hover:text-white transition">Hapus</button>
                     </td>
                 </tr>
-            `).join('') || `<tr><td colspan="4" class="text-center py-6 text-gray-400">Belum ada event atau tabel belum dibuat.</td></tr>`;
+            `).join('') || `<tr><td colspan="4" class="text-center py-6 text-gray-400">Belum ada event.</td></tr>`;
 
             document.getElementById('app-content').innerHTML = `
                 <div class="max-w-7xl mx-auto px-4 py-12">
@@ -555,6 +571,7 @@
 
         async function createEvent(e) {
             e.preventDefault();
+            if (!supabase) { alert('Supabase offline.'); return; }
             const name = document.getElementById('ev-name').value;
             const date = document.getElementById('ev-date').value;
             const time = document.getElementById('ev-time').value;
@@ -563,7 +580,7 @@
             const image_url = document.getElementById('ev-img').value || null;
 
             const { error } = await supabase.from('events').insert([{ name, date, time, mode, description, image_url, status: 'Upcoming' }]);
-            if (error) alert('Gagal: Pastikan tabel "events" sudah dibuat di Supabase.\n' + error.message);
+            if (error) alert('Gagal: ' + error.message);
             else { alert('Event berhasil dibuat!'); renderAdminEvents(); }
         }
 
@@ -574,13 +591,15 @@
             }
         }
 
-        // --- 9. ADMIN GALLERY MANAGEMENT ---
+        // --- 9. ADMIN GALLERY ---
         async function renderAdminGallery() {
             let gallery = [];
-            try {
-                const res = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
-                if (res.data) gallery = res.data;
-            } catch(e) {}
+            if (supabase) {
+                try {
+                    const res = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
+                    if (res.data) gallery = res.data;
+                } catch(e) {}
+            }
 
             let rows = gallery.map(item => `
                 <tr class="border-b border-drift-border">
@@ -591,7 +610,7 @@
                         <button onclick="deleteGallery('${item.id}')" class="bg-red-950 text-drift-red px-3 py-1 rounded text-xs font-bold hover:bg-drift-red hover:text-white transition">Hapus</button>
                     </td>
                 </tr>
-            `).join('') || `<tr><td colspan="4" class="text-center py-6 text-gray-400">Belum ada foto atau tabel belum dibuat.</td></tr>`;
+            `).join('') || `<tr><td colspan="4" class="text-center py-6 text-gray-400">Belum ada foto.</td></tr>`;
 
             document.getElementById('app-content').innerHTML = `
                 <div class="max-w-7xl mx-auto px-4 py-12">
@@ -639,13 +658,14 @@
 
         async function uploadGallery(e) {
             e.preventDefault();
+            if (!supabase) { alert('Supabase offline.'); return; }
             const title = document.getElementById('gal-title').value;
             const category = document.getElementById('gal-cat').value;
             const image_url = document.getElementById('gal-url').value;
             const caption = document.getElementById('gal-caption').value;
 
             const { error } = await supabase.from('gallery').insert([{ title, category, image_url, caption }]);
-            if (error) alert('Gagal: Pastikan tabel "gallery" sudah dibuat di Supabase.\n' + error.message);
+            if (error) alert('Gagal: ' + error.message);
             else { alert('Foto berhasil diupload!'); renderAdminGallery(); }
         }
 
@@ -660,13 +680,15 @@
         async function renderAdminSettings() {
             let waLink = 'https://chat.whatsapp.com';
             let dcLink = 'https://discord.gg';
-            try {
-                const { data: settings } = await supabase.from('settings').select('*');
-                if (settings) {
-                    waLink = settings.find(s => s.key === 'whatsapp_link')?.value || waLink;
-                    dcLink = settings.find(s => s.key === 'discord_link')?.value || dcLink;
-                }
-            } catch(e) {}
+            if (supabase) {
+                try {
+                    const { data: settings } = await supabase.from('settings').select('*');
+                    if (settings) {
+                        waLink = settings.settings?.find(s => s.key === 'whatsapp_link')?.value || waLink;
+                        dcLink = settings.settings?.find(s => s.key === 'discord_link')?.value || dcLink;
+                    }
+                } catch(e) {}
+            }
 
             document.getElementById('app-content').innerHTML = `
                 <div class="max-w-2xl mx-auto px-4 py-12">
@@ -697,17 +719,14 @@
 
         async function updateSettings(e) {
             e.preventDefault();
+            if (!supabase) { alert('Supabase offline.'); return; }
             const wa = document.getElementById('set-wa').value;
             const dc = document.getElementById('set-dc').value;
 
-            try {
-                await supabase.from('settings').upsert({ key: 'whatsapp_link', value: wa });
-                await supabase.from('settings').upsert({ key: 'discord_link', value: dc });
-                alert('Link komunitas berhasil diperbarui!');
-                router('admin/dashboard');
-            } catch (error) {
-                alert('Gagal: Pastikan tabel "settings" sudah dibuat di Supabase.\n' + error.message);
-            }
+            await supabase.from('settings').upsert({ key: 'whatsapp_link', value: wa });
+            await supabase.from('settings').upsert({ key: 'discord_link', value: dc });
+            alert('Link komunitas berhasil diperbarui!');
+            router('admin/dashboard');
         }
 
         window.addEventListener('DOMContentLoaded', () => {
