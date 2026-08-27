@@ -9,12 +9,12 @@
     header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #16181f; border-bottom: 1px solid #2a2d37; }
     .logo-area { display: flex; align-items: center; gap: 10px; }
     .logo-badge { background: #e11d48; color: white; padding: 8px 12px; font-weight: bold; border-radius: 6px; }
-    .logo-text h1 { font-size: 16px; margin: 0; }
-    .logo-text p { font-size: 11px; margin: 0; color: #9ca3af; }
+    .logo-text h1 { font-size: 16px; margin: 0; text-align: left; }
+    .logo-text p { font-size: 11px; margin: 0; color: #9ca3af; text-align: left; }
     
-    .hero { padding: 40px 20px; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1000&q=80') center/cover; }
-    .hero h2 { font-size: 24px; margin-bottom: 10px; }
-    .hero p { color: #f43f5e; font-weight: bold; margin-bottom: 25px; }
+    .hero { padding: 45px 20px; background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1000&q=80') center/cover; }
+    .hero h2 { font-size: 22px; margin-bottom: 5px; }
+    .hero p { color: #f43f5e; font-weight: bold; margin-bottom: 25px; font-size: 14px; }
 
     .btn-group { display: flex; flex-direction: column; gap: 12px; max-width: 320px; margin: 0 auto; }
     .btn { padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; color: white; display: block; font-size: 14px; }
@@ -22,15 +22,22 @@
     .btn-dc { background: #6366f1; }
     .btn-event { background: #e11d48; }
 
-    .section { padding: 30px 20px; border-top: 1px solid #2a2d37; }
-    .section h3 { color: #e11d48; margin-bottom: 15px; }
+    .section { padding: 30px 20px; border-top: 1px solid #2a2d37; max-width: 600px; margin: 0 auto; text-align: left; }
+    .section h3 { color: #e11d48; margin-bottom: 15px; text-align: center; font-size: 18px; }
     
-    .event-card { background: #16181f; border: 1px solid #2a2d37; padding: 15px; border-radius: 8px; max-width: 350px; margin: 0 auto; text-align: left; }
-    .event-card h4 { margin: 0 0 8px 0; color: white; }
-    .event-card p { margin: 5px 0; font-size: 13px; color: #9ca3af; }
+    .card-box { background: #16181f; border: 1px solid #2a2d37; padding: 20px; border-radius: 10px; margin-bottom: 15px; }
+    .card-box h4 { margin: 0 0 10px 0; color: white; font-size: 16px; }
+    .card-box p { margin: 8px 0; font-size: 13px; color: #d1d5db; line-height: 1.5; }
+    .card-box b { color: #f43f5e; }
 
-    .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 400px; margin: 0 auto; }
-    .gallery-item { background: #16181f; border: 1px solid #2a2d37; height: 100px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6b7280; font-size: 12px; }
+    .event-img { width: 100%; height: 180px; object-fit: cover; border-radius: 6px; margin-bottom: 12px; display: none; border: 1px solid #2a2d37; }
+
+    .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .gallery-item { background: #16181f; border: 1px solid #2a2d37; border-radius: 8px; overflow: hidden; text-align: center; }
+    .gallery-item img { width: 100%; height: 120px; object-fit: cover; display: block; }
+    .gallery-item span { display: block; padding: 8px; font-size: 12px; color: #9ca3af; }
+
+    pre { white-space: pre-wrap; font-family: sans-serif; margin: 0; color: #d1d5db; font-size: 13px; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -38,7 +45,7 @@
   <header>
     <div class="logo-area">
       <div class="logo-badge">CXDI</div>
-      <div class="logo-text" style="text-align: left;">
+      <div class="logo-text">
         <h1>CARX STREET</h1>
         <p>DRIFT INDO</p>
       </div>
@@ -53,49 +60,110 @@
     <div class="btn-group">
       <a id="linkWa" href="#" target="_blank" class="btn btn-wa">Join WhatsApp</a>
       <a id="linkDc" href="#" target="_blank" class="btn btn-dc">Join Discord</a>
-      <a href="#eventSection" class="btn btn-event">Lihat Event</a>
+      <a href="#eventSection" class="btn btn-event">Lihat Event & Pendaftaran</a>
     </div>
   </div>
 
-  <!-- BAGIAN EVENT -->
+  <!-- BAGIAN EVENT DENGAN FOTO -->
   <div id="eventSection" class="section">
-    <h3>JADWAL EVENT DRIFT</h3>
-    <div id="eventContainer">
-      <div class="event-card">
-        <h4 id="evName">Belum ada event aktif</h4>
-        <p><b>Tanggal:</b> <span id="evDate">-</span></p>
-        <p><b>Hadiah:</b> <span id="evPrize">-</span></p>
-        <p id="evDesc" style="margin-top: 10px; font-size: 12px;">Admin belum mempublikasikan event baru.</p>
+    <h3>JADWAL EVENT & PENDAFTARAN</h3>
+    <div class="card-box">
+      <img id="evImg" class="event-img" alt="Poster Event">
+      <h4 id="evName">Belum ada event aktif</h4>
+      <p><b>Tanggal:</b> <span id="evDate">-</span></p>
+      <p><b>Class:</b> <span id="evClass">-</span></p>
+      <p><b>Hadiah:</b> <span id="evPrize">-</span></p>
+      <p><b>Rules Event:</b></p>
+      <p id="evRules" style="background: #0d0e12; padding: 10px; border-radius: 6px; border: 1px solid #2a2d37;">-</p>
+      <div style="text-align: center; margin-top: 15px;">
+        <a id="evRegBtn" href="#" target="_blank" class="btn btn-event" style="display:inline-block; padding: 10px 25px;">Daftar Sekarang</a>
       </div>
     </div>
   </div>
 
-  <!-- BAGIAN GALLERY -->
+  <!-- BAGIAN JADWAL PERTANDINGAN -->
   <div class="section">
-    <h3>CXDI GALLERY</h3>
-    <div class="gallery-grid">
-      <div class="gallery-item">Foto Banner 1</div>
-      <div class="gallery-item">Foto Banner 2</div>
+    <h3>JADWAL PERTANDINGAN</h3>
+    <div class="card-box">
+      <pre id="schedView">Belum ada jadwal pertandingan yang diumumkan admin.</pre>
+    </div>
+  </div>
+
+  <!-- BAGIAN GALLERY FOTO -->
+  <div class="section">
+    <h3>CXDI PHOTO GALLERY</h3>
+    <div id="galleryContainer" class="gallery-grid">
+      <div style="grid-column: span 2; text-align: center; color: #6b7280; font-size: 13px; padding: 20px;">Belum ada foto di galeri.</div>
+    </div>
+  </div>
+
+  <!-- BAGIAN RULES GRUP -->
+  <div class="section">
+    <h3>PERATURAN GRUP / KOMUNITAS</h3>
+    <div class="card-box">
+      <pre id="rulesView">Belum ada peraturan grup yang diatur.</pre>
+    </div>
+  </div>
+
+  <!-- BAGIAN SPONSOR -->
+  <div class="section">
+    <h3>SPONSOR & PARTNER</h3>
+    <div class="card-box">
+      <pre id="sponsorView" style="text-align: center;">-</pre>
     </div>
   </div>
 
   <script>
-    // Otomatis pasang link WhatsApp & Discord dari data yang disimpan admin
-    const savedWa = localStorage.getItem('cfg_wa');
-    const savedDc = localStorage.getItem('cfg_discord');
+    if (localStorage.getItem('cfg_wa')) document.getElementById('linkWa').href = localStorage.getItem('cfg_wa');
+    if (localStorage.getItem('cfg_discord')) document.getElementById('linkDc').href = localStorage.getItem('cfg_discord');
 
-    if (savedWa) document.getElementById('linkWa').href = savedWa;
-    if (savedDc) document.getElementById('linkDc').href = savedDc;
-
-    // Otomatis tampilkan event terbaru dari dashboard
     const savedEvent = localStorage.getItem('active_event');
     if (savedEvent) {
       const ev = JSON.parse(savedEvent);
-      document.getElementById('evName').innerText = ev.name;
-      document.getElementById('evDate').innerText = ev.date;
-      document.getElementById('evPrize').innerText = ev.prize;
-      document.getElementById('evDesc').innerText = ev.desc;
+      document.getElementById('evName').innerText = ev.name || '-';
+      document.getElementById('evDate').innerText = ev.date || '-';
+      document.getElementById('evClass').innerText = ev.cls || '-';
+      document.getElementById('evPrize').innerText = ev.prize || '-';
+      document.getElementById('evRules').innerText = ev.rules || '-';
+      
+      if (ev.reg) {
+        document.getElementById('evRegBtn').href = ev.reg;
+        document.getElementById('evRegBtn').style.display = 'inline-block';
+      } else {
+        document.getElementById('evRegBtn').style.display = 'none';
+      }
+
+      if (ev.img) {
+        const imgEl = document.getElementById('evImg');
+        imgEl.src = ev.img;
+        imgEl.style.display = 'block';
+      }
+    } else {
+      document.getElementById('evRegBtn').style.display = 'none';
     }
+
+    const sched = localStorage.getItem('cfg_schedule');
+    if (sched) document.getElementById('schedView').innerText = sched;
+
+    const gallery = JSON.parse(localStorage.getItem('cfg_gallery') || '[]');
+    const galContainer = document.getElementById('galleryContainer');
+    if (gallery.length > 0) {
+      galContainer.innerHTML = '';
+      gallery.forEach(item => {
+        galContainer.innerHTML += `
+          <div class="gallery-item">
+            <img src="${item.img}" alt="${item.title}">
+            <span>${item.title}</span>
+          </div>
+        `;
+      });
+    }
+
+    const rules = localStorage.getItem('cfg_rules');
+    if (rules) document.getElementById('rulesView').innerText = rules;
+
+    const sponsors = localStorage.getItem('cfg_sponsors');
+    if (sponsors) document.getElementById('sponsorView').innerText = sponsors;
   </script>
 </body>
 </html>
