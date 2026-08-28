@@ -95,46 +95,49 @@
     </div>
   </div>
 
-  <!-- Memuat library Supabase Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const SUPABASE_URL = 'https://vemwhklbeknxrdcwyirxe.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlbXdoa2xiZWtueGRjd3lpcnhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4MTY1MzEsImV4cCI6MjEwMzM5MjUzMX0.BnyX9No8YEYCNIvRR2RzsoaslOb8o2Ka4V_YHLboWYg';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCafO3zY9poaEW9EbL1eB7NhWlozvVvgZQyhaQ-m8JxTtTQhiG3zXVlTCRJGojJ1-iRQ/exec";
 
     async function fetchPublicData() {
-      const { data, error } = await supabase.from('site_config').select('*');
-      if (data) {
-        data.forEach(row => {
-          if (row.key === 'wa') document.getElementById('linkWa').href = row.value;
-          if (row.key === 'discord') document.getElementById('linkDc').href = row.value;
-          if (row.key === 'schedule') document.getElementById('schedView').innerText = row.value;
-          if (row.key === 'rules') document.getElementById('rulesView').innerText = row.value;
-          if (row.key === 'sponsors') document.getElementById('sponsorView').innerText = row.value;
-          if (row.key === 'event') {
-            try {
-              const ev = JSON.parse(row.value);
-              document.getElementById('evName').innerText = ev.name || '-';
-              document.getElementById('evDate').innerText = ev.date || '-';
-              document.getElementById('evClass').innerText = ev.cls || '-';
-              document.getElementById('evPrize').innerText = ev.prize || '-';
-              document.getElementById('evRules').innerText = ev.rules || '-';
-              if (ev.reg) {
-                document.getElementById('evRegBtn').href = ev.reg;
-                document.getElementById('evRegBtn').style.display = 'inline-block';
-              } else {
-                document.getElementById('evRegBtn').style.display = 'none';
-              }
-              if (ev.img) {
-                const imgEl = document.getElementById('evImg');
-                imgEl.src = ev.img;
-                imgEl.style.display = 'block';
-              }
-            } catch (err) {
-              console.error("Gagal parsing data event");
+      try {
+        const response = await fetch(SCRIPT_URL);
+        const data = await response.json();
+        
+        if (!data) return;
+
+        if (data.wa) document.getElementById('linkWa').href = data.wa;
+        if (data.discord) document.getElementById('linkDc').href = data.discord;
+        if (data.schedule) document.getElementById('schedView').innerText = data.schedule;
+        if (data.rules) document.getElementById('rulesView').innerText = data.rules;
+        if (data.sponsors) document.getElementById('sponsorView').innerText = data.sponsors;
+        
+        if (data.event) {
+          try {
+            const ev = JSON.parse(data.event);
+            document.getElementById('evName').innerText = ev.name || '-';
+            document.getElementById('evDate').innerText = ev.date || '-';
+            document.getElementById('evClass').innerText = ev.cls || '-';
+            document.getElementById('evPrize').innerText = ev.prize || '-';
+            document.getElementById('evRules').innerText = ev.rules || '-';
+            
+            if (ev.reg) {
+              document.getElementById('evRegBtn').href = ev.reg;
+              document.getElementById('evRegBtn').style.display = 'inline-block';
+            } else {
+              document.getElementById('evRegBtn').style.display = 'none';
             }
+            
+            if (ev.img) {
+              const imgEl = document.getElementById('evImg');
+              imgEl.src = ev.img;
+              imgEl.style.display = 'block';
+            }
+          } catch (err) {
+            console.error("Gagal parsing data event", err);
           }
-        });
+        }
+      } catch (err) {
+        console.error("Gagal memuat data dari Google Sheets:", err);
       }
     }
 
