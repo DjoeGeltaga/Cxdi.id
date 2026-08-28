@@ -96,8 +96,9 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCafO3zY9poaEW9EbL1eB7NhWlozvVvgZQyhaQ-m8JxTtTQhiG3zXVlTCRJGojJ1-iRQ/exec";
+
     function handleLogout() {
       try {
         localStorage.clear();
@@ -105,75 +106,68 @@
       window.location.href = "index.html";
     }
 
-    let db = null;
-    try {
-      const SUPABASE_URL = 'https://vemwhklbeknxrdcwyirxe.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlbXdoa2xiZWtueGRjd3lpcnhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4MTY1MzEsImV4cCI6MjEwMzM5MjUzMX0.BnyX9No8YEYCNIvRR2RzsoaslOb8o2Ka4V_YHLboWYg';
-      db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } catch (err) {
-      console.error("Gagal init Supabase:", err);
-    }
-
     async function loadData() {
-      if (!db) return;
       try {
-        const { data, error } = await db.from('site_config').select('*');
+        const response = await fetch(SCRIPT_URL);
+        const data = await response.json();
+        
         if (data) {
-          data.forEach(row => {
-            if (row.key === 'wa') document.getElementById('waLink').value = row.value || '';
-            if (row.key === 'discord') document.getElementById('discordLink').value = row.value || '';
-            if (row.key === 'schedule') document.getElementById('schedDesc').value = row.value || '';
-            if (row.key === 'rules') document.getElementById('groupRules').value = row.value || '';
-            if (row.key === 'sponsors') document.getElementById('sponsorList').value = row.value || '';
-            if (row.key === 'event') {
-              try {
-                const ev = JSON.parse(row.value);
-                document.getElementById('evImg').value = ev.img || '';
-                document.getElementById('evName').value = ev.name || '';
-                document.getElementById('evDate').value = ev.date || '';
-                document.getElementById('evClass').value = ev.cls || '';
-                document.getElementById('evPrize').value = ev.prize || '';
-                document.getElementById('evRules').value = ev.rules || '';
-                document.getElementById('evReg').value = ev.reg || '';
-              } catch (e) {}
-            }
-            if (row.key === 'gallery') {
-              try {
-                const gal = JSON.parse(row.value);
-                document.getElementById('galTitle').value = gal.title || '';
-                document.getElementById('galImg').value = gal.img || '';
-                document.getElementById('galDesc').value = gal.desc || '';
-              } catch (e) {}
-            }
-          });
+          if (data.wa) document.getElementById('waLink').value = data.wa;
+          if (data.discord) document.getElementById('discordLink').value = data.discord;
+          if (data.schedule) document.getElementById('schedDesc').value = data.schedule;
+          if (data.rules) document.getElementById('groupRules').value = data.rules;
+          if (data.sponsors) document.getElementById('sponsorList').value = data.sponsors;
+          
+          if (data.event) {
+            try {
+              const ev = JSON.parse(data.event);
+              document.getElementById('evImg').value = ev.img || '';
+              document.getElementById('evName').value = ev.name || '';
+              document.getElementById('evDate').value = ev.date || '';
+              document.getElementById('evClass').value = ev.cls || '';
+              document.getElementById('evPrize').value = ev.prize || '';
+              document.getElementById('evRules').value = ev.rules || '';
+              document.getElementById('evReg').value = ev.reg || '';
+            } catch (e) {}
+          }
+
+          if (data.gallery) {
+            try {
+              const gal = JSON.parse(data.gallery);
+              document.getElementById('galTitle').value = gal.title || '';
+              document.getElementById('galImg').value = gal.img || '';
+              document.getElementById('galDesc').value = gal.desc || '';
+            } catch (e) {}
+          }
         }
-      } catch (e) {}
+      } catch (err) {
+        console.error("Gagal memuat data Google Sheets:", err);
+      }
     }
 
     window.onload = function() {
       loadData();
     };
 
+    async function sendData(key, value) {
+      await fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8",
+        },
+        body: JSON.stringify({ key, value })
+      });
+    }
+
     async function saveConfig(e, type) {
       e.preventDefault();
-      if (!db) {
-        alert("Koneksi database belum siap!");
-        return;
-      }
       try {
         if (type === 'links') {
-          const { error: err1 } = await db.from('site_config').upsert({ key: 'wa', value: document.getElementById('waLink').value }, { onConflict: 'key' });
-          const { error: err2 } = await db.from('site_config').upsert({ key: 'discord', value: document.getElementById('discordLink').value }, { onConflict: 'key' });
-          if (err1 || err2) throw new Error((err1?.message || '') + ' ' + (err2?.message || ''));
-          alert("Link berhasil disimpan secara online!");
-          loadData();
-          return;
-        } 
-        
-        let key = type;
-        let value = '';
-
-        if (type === 'event') {
+          await sendData('wa', document.getElementById('waLink').value);
+          await sendData('discord', document.getElementById('discordLink').value);
+          alert("Link berhasil disimpan ke Google Sheets!");
+        } else if (type === 'event') {
           const evData = {
             img: document.getElementById('evImg').value,
             name: document.getElementById('evName').value,
@@ -183,31 +177,30 @@
             rules: document.getElementById('evRules').value,
             reg: document.getElementById('evReg').value
           };
-          value = JSON.stringify(evData);
+          await sendData('event', JSON.stringify(evData));
+          alert("Event berhasil dipublikasikan ke Google Sheets!");
         } else if (type === 'gallery') {
           const galData = {
             title: document.getElementById('galTitle').value,
             img: document.getElementById('galImg').value,
             desc: document.getElementById('galDesc').value
           };
-          value = JSON.stringify(galData);
+          await sendData('gallery', JSON.stringify(galData));
+          alert("Galeri publik berhasil di-upload ke Google Sheets!");
         } else if (type === 'schedule') {
-          value = document.getElementById('schedDesc').value;
+          await sendData('schedule', document.getElementById('schedDesc').value);
+          alert("Jadwal berhasil disimpan ke Google Sheets!");
         } else if (type === 'rules') {
-          value = document.getElementById('groupRules').value;
+          await sendData('rules', document.getElementById('groupRules').value);
+          alert("Rules berhasil disimpan ke Google Sheets!");
         } else if (type === 'sponsors') {
-          value = document.getElementById('sponsorList').value;
+          await sendData('sponsors', document.getElementById('sponsorList').value);
+          alert("Sponsor berhasil disimpan ke Google Sheets!");
         }
-
-        const { error } = await db.from('site_config').upsert({ key: key, value: value }, { onConflict: 'key' });
-        if (error) {
-          alert("Gagal Supabase: " + error.message);
-        } else {
-          alert("Data berhasil dipublikasikan secara global!");
-          loadData();
-        }
+        
+        setTimeout(loadData, 1000);
       } catch (err) {
-        alert("Error tertangkap: " + err.message);
+        alert("Gagal menyimpan: " + err.message);
       }
     }
   </script>
