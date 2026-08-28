@@ -97,7 +97,7 @@
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCafO3zY9poaEW9EbL1eB7NhWlozvVvgZQyhaQ-m8JxTtTQhiG3zXVlTCRJGojJ1-iRQ/exec";
+    const API_URL = "https://sheetdb.io/api/v1/el0cf05ndo84n";
 
     function handleLogout() {
       try {
@@ -108,19 +108,24 @@
 
     async function loadData() {
       try {
-        const response = await fetch(SCRIPT_URL);
+        const response = await fetch(API_URL);
         const data = await response.json();
         
-        if (data) {
-          if (data.wa) document.getElementById('waLink').value = data.wa;
-          if (data.discord) document.getElementById('discordLink').value = data.discord;
-          if (data.schedule) document.getElementById('schedDesc').value = data.schedule;
-          if (data.rules) document.getElementById('groupRules').value = data.rules;
-          if (data.sponsors) document.getElementById('sponsorList').value = data.sponsors;
+        if (Array.isArray(data)) {
+          const config = {};
+          data.forEach(item => {
+            config[item.key] = item.value;
+          });
+
+          if (config.wa) document.getElementById('waLink').value = config.wa;
+          if (config.discord) document.getElementById('discordLink').value = config.discord;
+          if (config.schedule) document.getElementById('schedDesc').value = config.schedule;
+          if (config.rules) document.getElementById('groupRules').value = config.rules;
+          if (config.sponsors) document.getElementById('sponsorList').value = config.sponsors;
           
-          if (data.event) {
+          if (config.event) {
             try {
-              const ev = JSON.parse(data.event);
+              const ev = JSON.parse(config.event);
               document.getElementById('evImg').value = ev.img || '';
               document.getElementById('evName').value = ev.name || '';
               document.getElementById('evDate').value = ev.date || '';
@@ -131,9 +136,9 @@
             } catch (e) {}
           }
 
-          if (data.gallery) {
+          if (config.gallery) {
             try {
-              const gal = JSON.parse(data.gallery);
+              const gal = JSON.parse(config.gallery);
               document.getElementById('galTitle').value = gal.title || '';
               document.getElementById('galImg').value = gal.img || '';
               document.getElementById('galDesc').value = gal.desc || '';
@@ -141,7 +146,7 @@
           }
         }
       } catch (err) {
-        console.error("Gagal memuat data Google Sheets:", err);
+        console.error("Gagal memuat data SheetDB:", err);
       }
     }
 
@@ -150,14 +155,26 @@
     };
 
     async function sendData(key, value) {
-      await fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8",
-        },
-        body: JSON.stringify({ key, value })
-      });
+      const checkRes = await fetch(`${API_URL}/key/${key}`);
+      const existing = await checkRes.json();
+      
+      if (existing.length > 0) {
+        await fetch(`${API_URL}/key/${key}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ value: value })
+        });
+      } else {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ key: key, value: value })
+        });
+      }
     }
 
     async function saveConfig(e, type) {
@@ -166,7 +183,7 @@
         if (type === 'links') {
           await sendData('wa', document.getElementById('waLink').value);
           await sendData('discord', document.getElementById('discordLink').value);
-          alert("Link berhasil disimpan ke Google Sheets!");
+          alert("Link berhasil disimpan ke Google Sheets via SheetDB!");
         } else if (type === 'event') {
           const evData = {
             img: document.getElementById('evImg').value,
@@ -178,7 +195,7 @@
             reg: document.getElementById('evReg').value
           };
           await sendData('event', JSON.stringify(evData));
-          alert("Event berhasil dipublikasikan ke Google Sheets!");
+          alert("Event berhasil dipublikasikan ke Google Sheets via SheetDB!");
         } else if (type === 'gallery') {
           const galData = {
             title: document.getElementById('galTitle').value,
@@ -186,16 +203,16 @@
             desc: document.getElementById('galDesc').value
           };
           await sendData('gallery', JSON.stringify(galData));
-          alert("Galeri publik berhasil di-upload ke Google Sheets!");
+          alert("Galeri publik berhasil di-upload ke Google Sheets via SheetDB!");
         } else if (type === 'schedule') {
           await sendData('schedule', document.getElementById('schedDesc').value);
-          alert("Jadwal berhasil disimpan ke Google Sheets!");
+          alert("Jadwal berhasil disimpan ke Google Sheets via SheetDB!");
         } else if (type === 'rules') {
           await sendData('rules', document.getElementById('groupRules').value);
-          alert("Rules berhasil disimpan ke Google Sheets!");
+          alert("Rules berhasil disimpan ke Google Sheets via SheetDB!");
         } else if (type === 'sponsors') {
           await sendData('sponsors', document.getElementById('sponsorList').value);
-          alert("Sponsor berhasil disimpan ke Google Sheets!");
+          alert("Sponsor berhasil disimpan ke Google Sheets via SheetDB!");
         }
         
         setTimeout(loadData, 1000);
