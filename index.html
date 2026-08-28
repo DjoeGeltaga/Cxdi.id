@@ -3,195 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CarX Street Drift Indo (CXDI)</title>
-  <!-- Supabase JS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>CXDI Community</title>
   <style>
-    body { background-color: #0d0e12; color: white; font-family: sans-serif; margin: 0; padding: 0; }
-    header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #16181f; border-bottom: 1px solid #2a2d37; }
-    .logo-area { display: flex; align-items: center; gap: 10px; }
-    .logo-badge { background: #e11d48; color: white; padding: 8px 12px; font-weight: bold; border-radius: 6px; }
-    .logo-text h1 { font-size: 16px; margin: 0; text-align: left; }
-    .logo-text p { font-size: 11px; margin: 0; color: #9ca3af; text-align: left; }
-    
-    .container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
-    .hero { background: linear-gradient(135deg, #16181f 0%, #1f2430 100%); border: 1px solid #2a2d37; padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 25px; }
-    .hero h2 { color: #e11d48; margin-top: 0; font-size: 26px; }
-    .hero p { color: #d1d5db; font-size: 14px; line-height: 1.6; }
-    
-    .card { background: #16181f; border: 1px solid #2a2d37; padding: 25px; border-radius: 10px; margin-bottom: 20px; text-align: left; }
-    .card h3 { color: #e11d48; margin-top: 0; border-bottom: 1px solid #2a2d37; padding-bottom: 10px; }
-    
-    .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
-    .btn { padding: 10px 20px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; color: white; font-size: 14px; text-decoration: none; display: inline-block; transition: opacity 0.2s; }
-    .btn:hover { opacity: 0.85; }
-    .btn-primary { background: #e11d48; }
-    .btn-discord { background: #5865F2; }
-    .btn-whatsapp { background: #25D366; }
-    .btn-secondary { background: #374151; }
-    
-    pre-wrap, .content-box { white-space: pre-wrap; font-size: 13px; color: #d1d5db; line-height: 1.5; }
-    
-    .event-banner { width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; }
-    
-    footer { text-align: center; padding: 20px; color: #6b7280; font-size: 12px; border-top: 1px solid #2a2d37; margin-top: 40px; }
+    body { background-color: #0d0e12; color: white; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .container { width: 100%; max-width: 600px; }
+    .card { background: #16181f; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2a2d37; }
+    h2 { color: #e11d48; margin-top: 0; }
+    a.btn { display: block; text-align: center; background: #e11d48; color: white; padding: 12px; border-radius: 6px; text-decoration: none; font-weight: bold; margin-top: 10px; }
   </style>
 </head>
 <body>
-
-  <header>
-    <div class="logo-area">
-      <div class="logo-badge">CXDI</div>
-      <div class="logo-text">
-        <h1>CARX STREET DRIFT INDO</h1>
-        <p>Official Community & Event Platform</p>
-      </div>
-    </div>
-    <div>
-      <a href="dashboard.html" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;">Admin Login</a>
-    </div>
-  </header>
-
   <div class="container">
-    <!-- HERO SECTION -->
-    <div class="hero">
-      <h2>Selamat Datang di CXDI</h2>
-      <p>Pusat informasi komunitas, jadwal pertandingan, peraturan, dan pendaftaran event resmi CarX Street Drift Indonesia.</p>
-      <div class="btn-group">
-        <a id="linkWaBtn" href="#" target="_blank" class="btn btn-whatsapp" style="display: none;">Gabung WhatsApp Group</a>
-        <a id="linkDiscordBtn" href="#" target="_blank" class="btn btn-discord" style="display: none;">Gabung Server Discord</a>
-      </div>
-    </div>
+    <h2>🏁 CXDI Community Beranda</h2>
 
-    <!-- EVENT TERBARU -->
-    <div class="card" id="eventCard" style="display: none;">
-      <h3>Event Aktif & Pendaftaran</h3>
+    <div class="card" id="eventCard" style="display:none;">
+      <h3>Event Aktif</h3>
       <div id="eventContent"></div>
     </div>
 
-    <!-- JADWAL PERTANDINGAN -->
     <div class="card">
-      <h3>Jadwal Pertandingan</h3>
-      <div id="scheduleText" class="content-box">Memuat jadwal...</div>
-    </div>
-
-    <!-- PERATURAN -->
-    <div class="card">
-      <h3>Peraturan Komunitas & Event</h3>
-      <div id="rulesText" class="content-box">Memuat peraturan...</div>
-    </div>
-
-    <!-- SPONSOR & PARTNER -->
-    <div class="card">
-      <h3>Sponsor & Partner</h3>
-      <div id="sponsorsText" class="content-box">Memuat sponsor...</div>
+      <h3>Komunitas</h3>
+      <a id="waBtn" href="#" class="btn" target="_blank" style="display:none;">Gabung WhatsApp</a>
+      <a id="discordBtn" href="#" class="btn" target="_blank" style="display:none; background:#5865F2;">Gabung Discord</a>
     </div>
   </div>
 
-  <footer>
-    &copy; 2026 CarX Street Drift Indo (CXDI). All rights reserved.
-  </footer>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Konfigurasi Supabase menggunakan key publishable baru Anda
-    const SUPABASE_URL = 'https://rstgnd17pcamhli.supabase.co'; // Sesuaikan URL project Supabase Anda jika berbeda
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_BunHy3v0BcX54Z_R9OBpkw__e03uXAH';
-    
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-    const SHEETDB_URL = "https://sheetdb.io/api/v1/el0cf05ndo84n";
+    const SUPABASE_URL = 'https://vemwhklbeknxrdcwyirxe.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_BunHy3v0BcX54Z_R9OBpkw__e03uXAH';
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Fungsi untuk mengambil dan merender data publik dari SheetDB
-    async function loadPublicData() {
+    async function loadIndexData() {
       try {
-        const response = await fetch(SHEETDB_URL);
-        const textResponse = await response.text();
-        
-        if (textResponse.trim().startsWith('<')) {
-          throw new Error("Gagal memuat data dari database.");
-        }
-
-        const data = JSON.parse(textResponse);
-        const config = {};
-
-        if (Array.isArray(data)) {
-          data.forEach(item => {
-            config[item.key] = item.value;
-          });
-
-          // Set WhatsApp Link
-          if (config.wa) {
-            const waBtn = document.getElementById('linkWaBtn');
-            waBtn.href = config.wa;
-            waBtn.style.display = 'inline-block';
-          }
-
-          // Set Discord Link
-          if (config.discord) {
-            const discordBtn = document.getElementById('linkDiscordBtn');
-            discordBtn.href = config.discord;
-            discordBtn.style.display = 'inline-block';
-          }
-
-          // Set Schedule
-          if (config.schedule) {
-            document.getElementById('scheduleText').innerText = config.schedule;
-          } else {
-            document.getElementById('scheduleText').innerText = 'Belum ada jadwal yang diumumkan.';
-          }
-
-          // Set Rules
-          if (config.rules) {
-            document.getElementById('rulesText').innerText = config.rules;
-          } else {
-            document.getElementById('rulesText').innerText = 'Belum ada peraturan yang diumumkan.';
-          }
-
-          // Set Sponsors
-          if (config.sponsors) {
-            document.getElementById('sponsorsText').innerText = config.sponsors;
-          } else {
-            document.getElementById('sponsorsText').innerText = 'Belum ada sponsor yang terdaftar.';
-          }
-
-          // Set Event
-          if (config.event) {
-            try {
-              const ev = JSON.parse(config.event);
-              if (ev.name) {
-                document.getElementById('eventCard').style.display = 'block';
-                let htmlContent = '';
-                
-                if (ev.img) {
-                  htmlContent += `<img src="${ev.img}" alt="Poster Event" class="event-banner">`;
-                }
-                
-                htmlContent += `<h4 style="color: white; margin-bottom: 5px; font-size: 18px;">${ev.name}</h4>`;
-                htmlContent += `<p style="color: #9ca3af; font-size: 13px; margin-top: 0;"><strong>Tanggal:</strong> ${ev.date || '-'}</p>`;
-                htmlContent += `<p style="font-size: 13px;"><strong>Kategori/Class:</strong> ${ev.cls || '-'}</p>`;
-                htmlContent += `<p style="font-size: 13px;"><strong>Hadiah:</strong> ${ev.prize || '-'}</p>`;
-                
-                if (ev.rules) {
-                  htmlContent += `<p style="font-size: 13px; white-space: pre-wrap;"><strong>Aturan Event:</strong><br>${ev.rules}</p>`;
-                }
-
-                if (ev.reg) {
-                  htmlContent += `<div style="margin-top: 20px;"><a href="${ev.reg}" target="_blank" class="btn btn-primary">Daftar Event Sekarang</a></div>`;
-                }
-
-                document.getElementById('eventContent').innerHTML = htmlContent;
-              }
-            } catch (err) {
-              console.error("Gagal memuat detail event", err);
+        const { data } = await db.from('site_config').select('*');
+        if (data) {
+          data.forEach(row => {
+            if (row.key === 'wa' && row.value) {
+              const btn = document.getElementById('waBtn');
+              btn.href = row.value;
+              btn.style.display = 'block';
             }
-          }
+            if (row.key === 'discord' && row.value) {
+              const btn = document.getElementById('discordBtn');
+              btn.href = row.value;
+              btn.style.display = 'block';
+            }
+            if (row.key === 'event' && row.value) {
+              try {
+                const ev = JSON.parse(row.value);
+                if (ev.name) {
+                  document.getElementById('eventCard').style.display = 'block';
+                  document.getElementById('eventContent').innerHTML = `
+                    <p><b>${ev.name}</b></p>
+                    <p>📅 ${ev.date}</p>
+                    <p>🏆 ${ev.prize}</p>
+                    <a href="${ev.reg}" class="btn" target="_blank">Daftar Event</a>
+                  `;
+                }
+              } catch(e){}
+            }
+          });
         }
-      } catch (err) {
-        console.error("Terjadi kesalahan:", err);
-      }
+      } catch (err) {}
     }
-
-    // Jalankan fungsi saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', loadPublicData);
+    loadIndexData();
   </script>
 </body>
 </html>
