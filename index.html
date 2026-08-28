@@ -44,7 +44,7 @@
         <p>DRIFT INDO</p>
       </div>
     </div>
-    <a href="admin.html" style="color: #9ca3af; font-size: 12px; text-decoration: none;">Admin Login</a>
+    <a href="dashboard.html" style="color: #9ca3af; font-size: 12px; text-decoration: none;">Admin Login</a>
   </header>
 
   <div class="hero">
@@ -96,24 +96,29 @@
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCafO3zY9poaEW9EbL1eB7NhWlozvVvgZQyhaQ-m8JxTtTQhiG3zXVlTCRJGojJ1-iRQ/exec";
+    const API_URL = "https://sheetdb.io/api/v1/el0cf05ndo84n";
 
     async function fetchPublicData() {
       try {
-        const response = await fetch(SCRIPT_URL);
+        const response = await fetch(API_URL);
         const data = await response.json();
         
-        if (!data) return;
+        if (!Array.isArray(data)) return;
 
-        if (data.wa) document.getElementById('linkWa').href = data.wa;
-        if (data.discord) document.getElementById('linkDc').href = data.discord;
-        if (data.schedule) document.getElementById('schedView').innerText = data.schedule;
-        if (data.rules) document.getElementById('rulesView').innerText = data.rules;
-        if (data.sponsors) document.getElementById('sponsorView').innerText = data.sponsors;
+        const config = {};
+        data.forEach(item => {
+          config[item.key] = item.value;
+        });
+
+        if (config.wa) document.getElementById('linkWa').href = config.wa;
+        if (config.discord) document.getElementById('linkDc').href = config.discord;
+        if (config.schedule) document.getElementById('schedView').innerText = config.schedule;
+        if (config.rules) document.getElementById('rulesView').innerText = config.rules;
+        if (config.sponsors) document.getElementById('sponsorView').innerText = config.sponsors;
         
-        if (data.event) {
+        if (config.event) {
           try {
-            const ev = JSON.parse(data.event);
+            const ev = JSON.parse(config.event);
             document.getElementById('evName').innerText = ev.name || '-';
             document.getElementById('evDate').innerText = ev.date || '-';
             document.getElementById('evClass').innerText = ev.cls || '-';
@@ -137,7 +142,7 @@
           }
         }
       } catch (err) {
-        console.error("Gagal memuat data dari Google Sheets:", err);
+        console.error("Gagal memuat data dari SheetDB:", err);
       }
     }
 
