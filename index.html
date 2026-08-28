@@ -3,71 +3,142 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CXDI Community</title>
+  <title>CXDI - CarX Street Drift Indo</title>
   <style>
-    body { background-color: #0d0e12; color: white; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-    .container { width: 100%; max-width: 600px; }
-    .card { background: #16181f; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2a2d37; }
-    h2 { color: #e11d48; margin-top: 0; }
-    a.btn { display: block; text-align: center; background: #e11d48; color: white; padding: 12px; border-radius: 6px; text-decoration: none; font-weight: bold; margin-top: 10px; }
+    body { background-color: #0d0e12; color: white; font-family: sans-serif; margin: 0; padding: 0; text-align: center; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #16181f; border-bottom: 1px solid #2a2d37; }
+    .logo-area { display: flex; align-items: center; gap: 10px; }
+    .logo-badge { background: #e11d48; color: white; padding: 8px 12px; font-weight: bold; border-radius: 6px; }
+    .logo-text h1 { font-size: 16px; margin: 0; text-align: left; }
+    .logo-text p { font-size: 11px; margin: 0; color: #9ca3af; text-align: left; }
+    
+    .hero { padding: 45px 20px; background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1000&q=80') center/cover; }
+    .hero h2 { font-size: 22px; margin-bottom: 5px; }
+    .hero p { color: #f43f5e; font-weight: bold; margin-bottom: 25px; font-size: 14px; }
+
+    .btn-group { display: flex; flex-direction: column; gap: 12px; max-width: 320px; margin: 0 auto; }
+    .btn { padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; color: white; display: block; font-size: 14px; }
+    .btn-wa { background: #22c55e; }
+    .btn-dc { background: #6366f1; }
+    .btn-event { background: #e11d48; }
+
+    .section { padding: 30px 20px; border-top: 1px solid #2a2d37; max-width: 600px; margin: 0 auto; text-align: left; }
+    .section h3 { color: #e11d48; margin-bottom: 15px; text-align: center; font-size: 18px; }
+    
+    .card-box { background: #16181f; border: 1px solid #2a2d37; padding: 20px; border-radius: 10px; margin-bottom: 15px; }
+    .card-box h4 { margin: 0 0 10px 0; color: white; font-size: 16px; }
+    .card-box p { margin: 8px 0; font-size: 13px; color: #d1d5db; line-height: 1.5; }
+    .card-box b { color: #f43f5e; }
+
+    .event-img { width: 100%; height: auto; max-height: 250px; object-fit: cover; border-radius: 6px; margin-bottom: 12px; display: none; border: 1px solid #2a2d37; }
+    pre { white-space: pre-wrap; font-family: sans-serif; margin: 0; color: #d1d5db; font-size: 13px; line-height: 1.5; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>🏁 CXDI Community Beranda</h2>
 
-    <div class="card" id="eventCard" style="display:none;">
-      <h3>Event Aktif</h3>
-      <div id="eventContent"></div>
+  <header>
+    <div class="logo-area">
+      <div class="logo-badge">CXDI</div>
+      <div class="logo-text">
+        <h1>CARX STREET</h1>
+        <p>DRIFT INDO</p>
+      </div>
     </div>
+    <a href="admin.html" style="color: #9ca3af; font-size: 12px; text-decoration: none;">Admin Login</a>
+  </header>
 
-    <div class="card">
-      <h3>Komunitas</h3>
-      <a id="waBtn" href="#" class="btn" target="_blank" style="display:none;">Gabung WhatsApp</a>
-      <a id="discordBtn" href="#" class="btn" target="_blank" style="display:none; background:#5865F2;">Gabung Discord</a>
+  <div class="hero">
+    <h2>CXDI — CARX STREET DRIFT INDO</h2>
+    <p>DRIFT • EVENT • COMMUNITY</p>
+
+    <div class="btn-group">
+      <a id="linkWa" href="#" target="_blank" class="btn btn-wa">Join WhatsApp</a>
+      <a id="linkDc" href="#" target="_blank" class="btn btn-dc">Join Discord</a>
+      <a href="#eventSection" class="btn btn-event">Lihat Event & Pendaftaran</a>
     </div>
   </div>
 
+  <div id="eventSection" class="section">
+    <h3>JADWAL EVENT & PENDAFTARAN</h3>
+    <div class="card-box">
+      <img id="evImg" class="event-img" alt="Poster Event">
+      <h4 id="evName">Memuat data event...</h4>
+      <p><b>Tanggal:</b> <span id="evDate">-</span></p>
+      <p><b>Class:</b> <span id="evClass">-</span></p>
+      <p><b>Hadiah:</b> <span id="evPrize">-</span></p>
+      <p><b>Rules Event:</b></p>
+      <p id="evRules" style="background: #0d0e12; padding: 10px; border-radius: 6px; border: 1px solid #2a2d37;">-</p>
+      <div style="text-align: center; margin-top: 15px;">
+        <a id="evRegBtn" href="#" target="_blank" class="btn btn-event" style="display:inline-block; padding: 10px 25px;">Daftar Sekarang</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>JADWAL PERTANDINGAN</h3>
+    <div class="card-box">
+      <pre id="schedView">Memuat jadwal...</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>PERATURAN GRUP / KOMUNITAS</h3>
+    <div class="card-box">
+      <pre id="rulesView">Memuat peraturan...</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>SPONSOR & PARTNER</h3>
+    <div class="card-box">
+      <pre id="sponsorView" style="text-align: center;">-</pre>
+    </div>
+  </div>
+
+  <!-- Memuat library Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = 'https://vemwhklbeknxrdcwyirxe.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_BunHy3v0BcX54Z_R9OBpkw__e03uXAH';
-    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlbXdoa2xiZWtueGRjd3lpcnhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4MTY1MzEsImV4cCI6MjEwMzM5MjUzMX0.BnyX9No8YEYCNIvRR2RzsoaslOb8o2Ka4V_YHLboWYg';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function loadIndexData() {
-      try {
-        const { data } = await db.from('site_config').select('*');
-        if (data) {
-          data.forEach(row => {
-            if (row.key === 'wa' && row.value) {
-              const btn = document.getElementById('waBtn');
-              btn.href = row.value;
-              btn.style.display = 'block';
+    async function fetchPublicData() {
+      const { data, error } = await supabase.from('site_config').select('*');
+      if (data) {
+        data.forEach(row => {
+          if (row.key === 'wa') document.getElementById('linkWa').href = row.value;
+          if (row.key === 'discord') document.getElementById('linkDc').href = row.value;
+          if (row.key === 'schedule') document.getElementById('schedView').innerText = row.value;
+          if (row.key === 'rules') document.getElementById('rulesView').innerText = row.value;
+          if (row.key === 'sponsors') document.getElementById('sponsorView').innerText = row.value;
+          if (row.key === 'event') {
+            try {
+              const ev = JSON.parse(row.value);
+              document.getElementById('evName').innerText = ev.name || '-';
+              document.getElementById('evDate').innerText = ev.date || '-';
+              document.getElementById('evClass').innerText = ev.cls || '-';
+              document.getElementById('evPrize').innerText = ev.prize || '-';
+              document.getElementById('evRules').innerText = ev.rules || '-';
+              if (ev.reg) {
+                document.getElementById('evRegBtn').href = ev.reg;
+                document.getElementById('evRegBtn').style.display = 'inline-block';
+              } else {
+                document.getElementById('evRegBtn').style.display = 'none';
+              }
+              if (ev.img) {
+                const imgEl = document.getElementById('evImg');
+                imgEl.src = ev.img;
+                imgEl.style.display = 'block';
+              }
+            } catch (err) {
+              console.error("Gagal parsing data event");
             }
-            if (row.key === 'discord' && row.value) {
-              const btn = document.getElementById('discordBtn');
-              btn.href = row.value;
-              btn.style.display = 'block';
-            }
-            if (row.key === 'event' && row.value) {
-              try {
-                const ev = JSON.parse(row.value);
-                if (ev.name) {
-                  document.getElementById('eventCard').style.display = 'block';
-                  document.getElementById('eventContent').innerHTML = `
-                    <p><b>${ev.name}</b></p>
-                    <p>📅 ${ev.date}</p>
-                    <p>🏆 ${ev.prize}</p>
-                    <a href="${ev.reg}" class="btn" target="_blank">Daftar Event</a>
-                  `;
-                }
-              } catch(e){}
-            }
-          });
-        }
-      } catch (err) {}
+          }
+        });
+      }
     }
-    loadIndexData();
+
+    fetchPublicData();
   </script>
 </body>
 </html>
