@@ -3,223 +3,322 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CXDI Admin Cloud Panel</title>
+  <title>Admin Dashboard - CXDI</title>
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { background-color: #0d0e12; color: white; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-    .container { width: 100%; max-width: 600px; }
-    .card { background: #16181f; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2a2d37; }
-    h2 { color: #e11d48; margin-top: 0; font-size: 20px; }
-    h3 { font-size: 16px; margin-bottom: 15px; border-bottom: 1px solid #2a2d37; padding-bottom: 8px; }
-    label { display: block; font-size: 13px; color: #9ca3af; margin-bottom: 5px; }
-    input, textarea { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 6px; border: 1px solid #2a2d37; background: #0d0e12; color: white; box-sizing: border-box; font-size: 14px; }
-    textarea { resize: vertical; height: 80px; }
-    button { width: 100%; padding: 12px; border-radius: 6px; border: none; background: #e11d48; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
-    button:hover { background: #be123c; }
-    .btn-logout { background: #374151; margin-top: 10px; width: auto; padding: 8px 15px; font-size: 12px; }
+    body { background-color: #0d0e12; color: white; font-family: sans-serif; margin: 0; padding: 0; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #16181f; border-bottom: 1px solid #2a2d37; }
+    .logo-area { display: flex; align-items: center; gap: 10px; }
+    .logo-badge { background: #e11d48; color: white; padding: 8px 12px; font-weight: bold; border-radius: 6px; }
+    .logo-text h1 { font-size: 16px; margin: 0; text-align: left; }
+    .logo-text p { font-size: 11px; margin: 0; color: #9ca3af; text-align: left; }
+    
+    .container { max-width: 700px; margin: 30px auto; padding: 0 20px; }
+    .card { background: #16181f; border: 1px solid #2a2d37; padding: 25px; border-radius: 10px; margin-bottom: 20px; }
+    h2, h3 { color: #e11d48; margin-top: 0; }
+    
+    .form-group { margin-bottom: 15px; text-align: left; }
+    label { display: block; margin-bottom: 5px; font-size: 13px; color: #d1d5db; font-weight: bold; }
+    input[type="text"], input[type="password"], textarea { width: 100%; padding: 10px; background: #0d0e12; border: 1px solid #2a2d37; color: white; border-radius: 6px; box-sizing: border-box; font-size: 13px; }
+    textarea { resize: vertical; height: 100px; }
+    
+    .btn { padding: 10px 20px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; color: white; font-size: 14px; text-decoration: none; display: inline-block; }
+    .btn-primary { background: #e11d48; }
+    .btn-secondary { background: #374151; }
+    .btn-danger { background: #dc2626; }
+    
+    .hidden { display: none !important; }
+    .alert { padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; text-align: center; }
+    .alert-error { background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; color: #fca5a5; }
+    .alert-success { background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #86efac; }
   </style>
 </head>
 <body>
 
+  <header>
+    <div class="logo-area">
+      <div class="logo-badge">CXDI</div>
+      <div class="logo-text">
+        <h1>ADMIN PANEL</h1>
+        <p>CARX STREET DRIFT INDO</p>
+      </div>
+    </div>
+    <div>
+      <a href="index.html" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px; margin-right: 10px;">Lihat Website</a>
+      <button id="btnLogout" class="btn btn-danger hidden" style="font-size: 12px; padding: 6px 12px;" onclick="handleLogout()">Logout</button>
+    </div>
+  </header>
+
   <div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h2>☁️ CXDI Cloud Admin Panel</h2>
-      <button type="button" onclick="handleLogout()" class="btn-logout">Logout & ke Beranda</button>
-    </div>
-
-    <div class="card">
-      <h3>🔗 Link Komunitas & Sosmed</h3>
-      <form onsubmit="saveConfig(event, 'links'); return false;">
-        <label>Link WhatsApp</label>
-        <input type="url" id="waLink" required>
-        <label>Link Discord</label>
-        <input type="url" id="discordLink" required>
-        <button type="submit">Simpan Link</button>
+    <!-- LOGIN SECTION (SUPABASE AUTH) -->
+    <div id="loginSection" class="card">
+      <h2>Login Admin Supabase</h2>
+      <p style="font-size: 13px; color: #9ca3af; margin-bottom: 20px;">Silakan masukkan akun Supabase Anda untuk mengakses panel admin.</p>
+      
+      <div id="loginAlert" class="alert alert-error hidden"></div>
+      
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="text" id="email" required placeholder="admin@example.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
       </form>
     </div>
 
-    <div class="card">
-      <h3>🏁 Event & Pendaftaran</h3>
-      <form onsubmit="saveConfig(event, 'event'); return false;">
-        <label>URL Poster Foto Event</label>
-        <input type="url" id="evImg" placeholder="Link gambar (Imgur/GitHub/dll)" required>
-        <label>Nama Event</label>
-        <input type="text" id="evName" required>
-        <label>Tanggal & Waktu</label>
-        <input type="text" id="evDate" required>
-        <label>Class</label>
-        <input type="text" id="evClass" required>
-        <label>Hadiah</label>
-        <input type="text" id="evPrize" required>
-        <label>Rules Event</label>
-        <textarea id="evRules" required></textarea>
-        <label>Link Pendaftaran</label>
-        <input type="url" id="evReg" required>
-        <button type="submit">Publikasikan Event</button>
-      </form>
-    </div>
+    <!-- DASHBOARD PANEL -->
+    <div id="dashboardSection" class="hidden">
+      <div id="statusAlert" class="alert hidden"></div>
 
-    <div class="card">
-      <h3>📸 Upload Galeri Event Publik</h3>
-      <form onsubmit="saveConfig(event, 'gallery'); return false;">
-        <label>Judul / Nama Galeri</label>
-        <input type="text" id="galTitle" placeholder="Contoh: Keseruan Event Rally Drift" required>
-        <label>URL Foto Galeri</label>
-        <input type="url" id="galImg" placeholder="Link gambar galeri (Imgur/GitHub/dll)" required>
-        <label>Deskripsi Galeri</label>
-        <textarea id="galDesc" placeholder="Keterangan singkat tentang galeri event..." required></textarea>
-        <button type="submit">Upload Galeri Publik</button>
-      </form>
-    </div>
+      <div class="card">
+        <h3>Pengaturan Umum & Link</h3>
+        <form id="configForm" onsubmit="saveConfig(event)">
+          <div class="form-group">
+            <label>Link WhatsApp Group</label>
+            <input type="text" id="inputWa" placeholder="https://chat.whatsapp.com/...">
+          </div>
+          <div class="form-group">
+            <label>Link Discord Server</label>
+            <input type="text" id="inputDiscord" placeholder="https://discord.gg/...">
+          </div>
+          <div class="form-group">
+            <label>Jadwal Pertandingan</label>
+            <textarea id="inputSchedule"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Peraturan Grup / Komunitas</label>
+            <textarea id="inputRules"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Sponsor & Partner</label>
+            <textarea id="inputSponsors"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Simpan Perubahan Umum</button>
+        </form>
+      </div>
 
-    <div class="card">
-      <h3>📅 Jadwal Pertandingan</h3>
-      <form onsubmit="saveConfig(event, 'schedule'); return false;">
-        <textarea id="schedDesc" required></textarea>
-        <button type="submit">Simpan Jadwal</button>
-      </form>
-    </div>
-
-    <div class="card">
-      <h3>📜 Rules Grup</h3>
-      <form onsubmit="saveConfig(event, 'rules'); return false;">
-        <textarea id="groupRules" required></textarea>
-        <button type="submit">Simpan Rules</button>
-      </form>
-    </div>
-
-    <div class="card">
-      <h3>🤝 Sponsor</h3>
-      <form onsubmit="saveConfig(event, 'sponsors'); return false;">
-        <textarea id="sponsorList" required></textarea>
-        <button type="submit">Simpan Sponsor</button>
-      </form>
+      <div class="card">
+        <h3>Pengaturan Event & Pendaftaran</h3>
+        <form id="eventForm" onsubmit="saveEvent(event)">
+          <div class="form-group">
+            <label>Nama Event</label>
+            <input type="text" id="evName" placeholder="Contoh: CXDI Drift Championship Vol. 1">
+          </div>
+          <div class="form-group">
+            <label>Tanggal Event</label>
+            <input type="text" id="evDate" placeholder="Contoh: 15-16 September 2026">
+          </div>
+          <div class="form-group">
+            <label>Class / Kategori</label>
+            <input type="text" id="evClass" placeholder="Contoh: Tier 3 Stock / Pro Class">
+          </div>
+          <div class="form-group">
+            <label>Hadiah / Prize Pool</label>
+            <input type="text" id="evPrize" placeholder="Contoh: Rp 1.000.000 + Exclusive Role">
+          </div>
+          <div class="form-group">
+            <label>Rules Event</label>
+            <textarea id="evRules" placeholder="Aturan khusus event..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Link Pendaftaran (Form/GForm)</label>
+            <input type="text" id="evReg" placeholder="https://forms.gle/...">
+          </div>
+          <div class="form-group">
+            <label>URL Poster Gambar Event</label>
+            <input type="text" id="evImg" placeholder="https://images.unsplash.com/...">
+          </div>
+          <button type="submit" class="btn btn-primary">Simpan Data Event</button>
+        </form>
+      </div>
     </div>
   </div>
 
   <script>
-    const API_URL = "https://sheetdb.io/api/v1/el0cf05ndo84n";
+    // Konfigurasi Supabase dengan key publishable baru Anda
+    const SUPABASE_URL = 'https://rstgnd17pcamhli.supabase.co'; // Sesuaikan URL project Supabase Anda jika berbeda
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_BunHy3v0BcX54Z_R9OBpkw__e03uXAH';
+    
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    const SHEETDB_URL = "https://sheetdb.io/api/v1/el0cf05ndo84n";
 
-    function handleLogout() {
-      try {
-        localStorage.clear();
-      } catch (e) {}
-      window.location.href = "index.html";
+    // Cek sesi login Supabase saat halaman dimuat
+    async function checkSession() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('dashboardSection').classList.remove('hidden');
+        document.getElementById('btnLogout').classList.remove('hidden');
+        loadDataToDashboard();
+      } else {
+        document.getElementById('loginSection').classList.remove('hidden');
+        document.getElementById('dashboardSection').classList.add('hidden');
+        document.getElementById('btnLogout').classList.add('hidden');
+      }
     }
 
-    async function loadData() {
+    // Proses Login menggunakan Supabase Auth
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const alertEl = document.getElementById('loginAlert');
+      
+      alertEl.classList.add('hidden');
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        alertEl.innerText = error.message;
+        alertEl.classList.remove('hidden');
+      } else {
+        checkSession();
+      }
+    }
+
+    // Proses Logout Supabase
+    async function handleLogout() {
+      await supabaseClient.auth.signOut();
+      checkSession();
+    }
+
+    let globalConfig = {};
+
+    // Ambil data dari SheetDB secara aman
+    async function loadDataToDashboard() {
       try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
+        const response = await fetch(SHEETDB_URL);
+        const textResponse = await response.text();
+        
+        if (textResponse.trim().startsWith('<')) {
+          throw new Error("API SheetDB mengembalikan halaman HTML (Error 404/Server). Periksa kembali URL SheetDB.");
+        }
+
+        const data = JSON.parse(textResponse);
         
         if (Array.isArray(data)) {
-          const config = {};
           data.forEach(item => {
-            config[item.key] = item.value;
+            globalConfig[item.key] = item.value;
           });
 
-          if (config.wa) document.getElementById('waLink').value = config.wa;
-          if (config.discord) document.getElementById('discordLink').value = config.discord;
-          if (config.schedule) document.getElementById('schedDesc').value = config.schedule;
-          if (config.rules) document.getElementById('groupRules').value = config.rules;
-          if (config.sponsors) document.getElementById('sponsorList').value = config.sponsors;
-          
-          if (config.event) {
+          if (globalConfig.wa) document.getElementById('inputWa').value = globalConfig.wa;
+          if (globalConfig.discord) document.getElementById('inputDiscord').value = globalConfig.discord;
+          if (globalConfig.schedule) document.getElementById('inputSchedule').value = globalConfig.schedule;
+          if (globalConfig.rules) document.getElementById('inputRules').value = globalConfig.rules;
+          if (globalConfig.sponsors) document.getElementById('inputSponsors').value = globalConfig.sponsors;
+
+          if (globalConfig.event) {
             try {
-              const ev = JSON.parse(config.event);
-              document.getElementById('evImg').value = ev.img || '';
+              const ev = JSON.parse(globalConfig.event);
               document.getElementById('evName').value = ev.name || '';
               document.getElementById('evDate').value = ev.date || '';
               document.getElementById('evClass').value = ev.cls || '';
               document.getElementById('evPrize').value = ev.prize || '';
               document.getElementById('evRules').value = ev.rules || '';
               document.getElementById('evReg').value = ev.reg || '';
-            } catch (e) {}
-          }
-
-          if (config.gallery) {
-            try {
-              const gal = JSON.parse(config.gallery);
-              document.getElementById('galTitle').value = gal.title || '';
-              document.getElementById('galImg').value = gal.img || '';
-              document.getElementById('galDesc').value = gal.desc || '';
-            } catch (e) {}
+              document.getElementById('evImg').value = ev.img || '';
+            } catch (err) {
+              console.error("Gagal parse event JSON", err);
+            }
           }
         }
       } catch (err) {
-        console.error("Gagal memuat data SheetDB:", err);
+        console.error(err);
+        showAlert("Gagal memuat data: " + err.message, "error");
       }
     }
 
-    window.onload = function() {
-      loadData();
-    };
-
-    async function sendData(key, value) {
-      const checkRes = await fetch(`${API_URL}/key/${key}`);
-      const existing = await checkRes.json();
-      
-      if (existing.length > 0) {
-        await fetch(`${API_URL}/key/${key}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ value: value })
-        });
-      } else {
-        await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ key: key, value: value })
-        });
-      }
-    }
-
-    async function saveConfig(e, type) {
-      e.preventDefault();
+    // Fungsi helper update data SheetDB berdasarkan key secara aman
+    async function updateSheetDBKey(key, value) {
       try {
-        if (type === 'links') {
-          await sendData('wa', document.getElementById('waLink').value);
-          await sendData('discord', document.getElementById('discordLink').value);
-          alert("Link berhasil disimpan ke Google Sheets via SheetDB!");
-        } else if (type === 'event') {
-          const evData = {
-            img: document.getElementById('evImg').value,
-            name: document.getElementById('evName').value,
-            date: document.getElementById('evDate').value,
-            cls: document.getElementById('evClass').value,
-            prize: document.getElementById('evPrize').value,
-            rules: document.getElementById('evRules').value,
-            reg: document.getElementById('evReg').value
-          };
-          await sendData('event', JSON.stringify(evData));
-          alert("Event berhasil dipublikasikan ke Google Sheets via SheetDB!");
-        } else if (type === 'gallery') {
-          const galData = {
-            title: document.getElementById('galTitle').value,
-            img: document.getElementById('galImg').value,
-            desc: document.getElementById('galDesc').value
-          };
-          await sendData('gallery', JSON.stringify(galData));
-          alert("Galeri publik berhasil di-upload ke Google Sheets via SheetDB!");
-        } else if (type === 'schedule') {
-          await sendData('schedule', document.getElementById('schedDesc').value);
-          alert("Jadwal berhasil disimpan ke Google Sheets via SheetDB!");
-        } else if (type === 'rules') {
-          await sendData('rules', document.getElementById('groupRules').value);
-          alert("Rules berhasil disimpan ke Google Sheets via SheetDB!");
-        } else if (type === 'sponsors') {
-          await sendData('sponsors', document.getElementById('sponsorList').value);
-          alert("Sponsor berhasil disimpan ke Google Sheets via SheetDB!");
+        const response = await fetch(`${SHEETDB_URL}/key/${key}`, {
+          method: 'PUT',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ data: { value: value } })
+        });
+
+        const textResponse = await response.text();
+        if (textResponse.trim().startsWith('<')) {
+          console.error("SheetDB Error HTML Response:", textResponse);
+          return false;
         }
-        
-        setTimeout(loadData, 1000);
+
+        return response.ok;
       } catch (err) {
-        alert("Gagal menyimpan: " + err.message);
+        console.error(err);
+        return false;
       }
     }
+
+    // Simpan Pengaturan Umum ke SheetDB
+    async function saveConfig(e) {
+      e.preventDefault();
+      const wa = document.getElementById('inputWa').value;
+      const discord = document.getElementById('inputDiscord').value;
+      const schedule = document.getElementById('inputSchedule').value;
+      const rules = document.getElementById('inputRules').value;
+      const sponsors = document.getElementById('inputSponsors').value;
+
+      let success = true;
+      success &= await updateSheetDBKey('wa', wa);
+      success &= await updateSheetDBKey('discord', discord);
+      success &= await updateSheetDBKey('schedule', schedule);
+      success &= await updateSheetDBKey('rules', rules);
+      success &= await updateSheetDBKey('sponsors', sponsors);
+
+      if (success) {
+        showAlert("Perubahan umum berhasil disimpan!", "success");
+      } else {
+        showAlert("Gagal menyimpan beberapa data ke database.", "error");
+      }
+    }
+
+    // Simpan Data Event ke SheetDB
+    async function saveEvent(e) {
+      e.preventDefault();
+      const eventData = {
+        name: document.getElementById('evName').value,
+        date: document.getElementById('evDate').value,
+        cls: document.getElementById('evClass').value,
+        prize: document.getElementById('evPrize').value,
+        rules: document.getElementById('evRules').value,
+        reg: document.getElementById('evReg').value,
+        img: document.getElementById('evImg').value
+      };
+
+      const eventJsonString = JSON.stringify(eventData);
+      const success = await updateSheetDBKey('event', eventJsonString);
+
+      if (success) {
+        showAlert("Data event berhasil disimpan!", "success");
+      } else {
+        showAlert("Gagal menyimpan data event ke database.", "error");
+      }
+    }
+
+    function showAlert(message, type) {
+      const alertEl = document.getElementById('statusAlert');
+      alertEl.innerText = message;
+      alertEl.className = `alert ${type === 'success' ? 'alert-success' : 'alert-error'}`;
+      alertEl.classList.remove('hidden');
+      setTimeout(() => {
+        alertEl.classList.add('hidden');
+      }, 5000);
+    }
+
+    // Jalankan pengecekan sesi saat halaman dibuka
+    checkSession();
   </script>
 </body>
 </html>
